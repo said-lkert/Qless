@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+}
+
+@layer base {
+  html, body, #root {
+    @apply h-full w-full overflow-hidden transition-colors duration-300;
+  }
+  
+  html {
+    @apply bg-white text-gray-900;
+  }
+
+  html.dark {
+    @apply bg-gray-900 text-gray-100;
+  }
+  
+  body {
+    @apply bg-inherit text-inherit;
+  }
+  
+  /* Hide scrollbars globally but keep functionality */
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.dark .leaflet-container {
+  background: #111827 !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Ticket Graphics */
+.ticket-shape {
+  position: relative;
+  background: white;
+  mask-image: radial-gradient(circle at 0 50%, transparent 10px, black 11px),
+              radial-gradient(circle at 100% 50%, transparent 10px, black 11px);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+.dark .ticket-shape {
+  background: #1f2937;
+}
+
+.ticket-perforation {
+  background-image: radial-gradient(circle, #d1d5db 2px, transparent 2.5px);
+  background-size: 10px 10px;
+  background-repeat: repeat-y;
+  width: 2px;
+  height: 100%;
+}
+
+.dark .ticket-perforation {
+  background-image: radial-gradient(circle, #374151 2px, transparent 2.5px);
+}
+
+/* Custom Leaflet overrides */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+}
+
+.leaflet-control-zoom-in, .leaflet-control-zoom-out {
+  background-color: white !important;
+  color: #2563eb !important;
+  border: 1px solid #f3f4f6 !important;
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  font-size: 18px !important;
+}
+
+.dark .leaflet-control-zoom-in, .dark .leaflet-control-zoom-out {
+  background-color: #1f2937 !important;
+  color: #60a5fa !important;
+  border-color: #374151 !important;
+}
+
+.leaflet-control-zoom-in {
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.leaflet-control-zoom-out {
+  border-radius: 0 0 12px 12px !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 20px !important;
+  padding: 0 !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background-color: rgba(31, 41, 55, 0.95) !important;
+  backdrop-filter: blur(8px);
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaflet-popup-tip-container {
+  margin-top: -1px;
+}
+
+.leaflet-popup-tip {
+  box-shadow: none !important;
+}
+
+.dark .leaflet-popup-tip {
+  background-color: rgba(31, 41, 55, 0.95) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.leaflet-popup-close-button {
+  display: none !important;
+}
+
+.leaflet-div-icon, .custom-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-div-icon > div {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-div-icon:hover > div {
+  transform: scale(1.1) translateY(-5px);
+  filter: brightness(1.1);
+}
+
+/* Fix for blurry tiles on high-DPI screens or browser zoom */
+.leaflet-tile {
+  image-rendering: auto;
+}
+
+.dark-tile-filter {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+.leaflet-tile-container {
+  will-change: transform;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
