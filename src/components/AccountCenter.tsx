@@ -20,6 +20,7 @@ interface AccountCenterProps {
   toggleDarkMode: () => void;
   notifications: any[];
   setNotifications: (notifications: any[]) => void;
+  onNotificationClick?: (notification: any) => void;
 }
 
 export const AccountCenter: React.FC<AccountCenterProps> = ({ 
@@ -32,7 +33,8 @@ export const AccountCenter: React.FC<AccountCenterProps> = ({
   isDarkMode,
   toggleDarkMode,
   notifications,
-  setNotifications
+  setNotifications,
+  onNotificationClick
 }) => {
   const { t, lang, setLang } = useLanguage();
   const [showFAQ, setShowFAQ] = useState(false);
@@ -48,7 +50,7 @@ export const AccountCenter: React.FC<AccountCenterProps> = ({
   const [editFirstName, setEditFirstName] = useState(user?.firstName || '');
   const [editLastName, setEditLastName] = useState(user?.lastName || '');
   const [editPhone, setEditPhone] = useState(user?.phone || '');
-  const [smsCode, setSmsCode] = useState('');
+  const [smsCode, setSmsCode] = useState('1234');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
@@ -283,6 +285,7 @@ export const AccountCenter: React.FC<AccountCenterProps> = ({
                               if (!notif.read) {
                                 setNotifications(notifications.map(n => n.id === notif.id ? {...n, read: true} : n));
                               }
+                              onNotificationClick?.(notif);
                             }}
                             className={cn(
                               "w-full bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm flex flex-col gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-left border cursor-pointer",

@@ -8,6 +8,7 @@ import { useLanguage } from '../hooks/useLanguage';
 
 // Fix for default marker icons in Leaflet with React
 import 'leaflet/dist/leaflet.css';
+import { renderToString } from 'react-dom/server';
 
 const blueDotIcon = L.divIcon({
   className: 'user-location-marker',
@@ -21,51 +22,19 @@ const blueDotIcon = L.divIcon({
   iconAnchor: [16, 16],
 });
 
-const createCustomIcon = (color: string, saturationColor: string, type: string) => {
-  // Mapping of types to SVG paths based on INSTITUTION_TYPES icons
-  const getIconPath = (t: string) => {
-    switch(t) {
-      case 'CARDIOLOGIST': return '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>';
-      case 'PULMONOLOGIST': return '<path d="M17.7 7.7A7.1 7.1 0 0 0 12.3 5c-3.9 0-7.1 3.2-7.1 7.1a7.1 7.1 0 0 0 2.7 5.4l-2.7 2.7l1.4 1.4l2.7-2.7a7.1 7.1 0 0 0 11.2-5.4c0-2-.8-3.8-2.1-5.2Z"/>';
-      case 'GASTROENTEROLOGIST': return '<path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>';
-      case 'NEPHROLOGIST': return '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>';
-      case 'NEUROLOGIST': return '<path d="M9.5 2A5.5 5.5 0 0 0 4 7.5c0 1.25.4 2.4 1.1 3.3l-1.3 1.3l1.4 1.4l1.3-1.3c.9.7 2.05 1.1 3.3 1.1c3 0 5.5-2.5 5.5-5.5S12.5 2 9.5 2Z"/><path d="M14.5 10.5a5.5 5.5 0 0 1 5.5 5.5c0 3-2.5 5.5-5.5 5.5S9 19 9 16c0-1.25.41-2.43 1.14-3.32"/>';
-      case 'ENDOCRINOLOGIST': return '<path d="M14 4v10.5a4.5 4.5 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>';
-      case 'ORL': return '<path d="M2 20h.01"/><path d="M7 20h.01"/><path d="M12 20h.01"/><path d="M17 20h.01"/><path d="M22 20h.01"/><path d="M2 15h.01"/><path d="M7 15h.01"/><path d="M12 15h.01"/><path d="M17 15h.01"/><path d="M22 15h.01"/><path d="M2 10h.01"/><path d="M7 10h.01"/><path d="M12 10h.01"/><path d="M17 10h.01"/><path d="M22 10h.01"/><path d="M2 5h.01"/><path d="M7 5h.01"/><path d="M12 5h.01"/><path d="M17 5h.01"/><path d="M22 5h.01"/>';
-      case 'OPHTHALMOLOGIST': return '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
-      case 'GENERALIST': return '<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9a2 2 0 0 1 0 3.6a9 9 0 0 1-17.6 0a2 2 0 0 1 0-3.6a9 9 0 0 1 1.8-3.9"/><path d="M16.3 11.3a2 2 0 1 1-4.6 0a2 2 0 0 1 4.6 0Z"/>';
-      case 'CLINIQUE': return '<path d="M6 18h12"/><path d="M3 22h18"/><path d="M3 7v14"/><path d="M19 21V7"/><path d="M14 12v4"/><path d="M12 14h4"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>';
-      case 'HOPITAL_PRIVE': return '<path d="M3 21h18"/><path d="M3 7v1l9-4.5V21"/><path d="M19 21V7l-7-3.5"/>';
-      case 'PHARMACY': return '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>';
-      case 'BANQUE_PRIVEE': return '<path d="M21 12V7H5a2 2 0 0 1 0-4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1 0-4h16"/>';
-      case 'ASSURANCE': return '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>';
-      case 'INVESTMENT': return '<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18.1"/>';
-      case 'SHOP': return '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>';
-      case 'WHOLESALER': return '<path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>';
-      case 'IMPORT_EXPORT': return '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>';
-      case 'SOFTWARE': return '<rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6" y1="6" y2="6"/><line x1="6" x2="6" y1="18" y2="18"/>';
-      case 'STARTUP': return '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>';
-      case 'CYBERSECURITY': return '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>';
-      case 'TELECOM': return '<path d="M2 20h.01"/><path d="M7 20h.01"/><path d="M12 20h.01"/><path d="M17 20h.01"/><path d="M22 20h.01"/><path d="M2 15h.01"/><path d="M7 15h.01"/><path d="M12 15h.01"/><path d="M17 15h.01"/><path d="M22 15h.01"/><path d="M2 10h.01"/><path d="M7 10h.01"/><path d="M12 10h.01"/><path d="M17 10h.01"/><path d="M22 10h.01"/><path d="M2 5h.01"/><path d="M7 5h.01"/><path d="M12 5h.01"/><path d="M17 5h.01"/><path d="M22 5h.01"/>';
-      case 'DIGITAL_SERVICE': return '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>';
-      case 'FARM': return '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
-      case 'FACTORY': return '<path d="M2 20V9l5 2V9l5 2V9l10 4v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/>';
-      case 'ELECTRONICS': return '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="8" x2="8" y1="3" y2="3"/><line x1="12" x2="12" y1="3" y2="3"/><line x1="16" x2="16" y1="3" y2="3"/><line x1="8" x2="8" y1="21" y2="21"/><line x1="12" x2="12" y1="21" y2="21"/><line x1="16" x2="16" y1="21" y2="21"/><line x1="3" x2="3" y1="8" y2="8"/><line x1="3" x2="3" y1="12" y2="12"/><line x1="3" x2="3" y1="16" y2="16"/><line x1="21" x2="21" y1="8" y2="8"/><line x1="21" x2="21" y1="12" y2="12"/><line x1="21" x2="21" y1="16" y2="16"/><path d="M9 9h6v6H9z"/>';
-      case 'CAR_MANUF': return '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.6C1.4 11.1 1 11.7 1 12.4V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>';
-      case 'UNIVERSITY': return '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 6 4 20"/><path d="M2 20h20"/><path d="M5 2c0 2.2 1.8 4 4 4s4-1.8 4-4"/><path d="M11 2c0 2.2 1.8 4 4 4s4-1.8 4-4"/>';
-      default: return '<path d="M12 2L2 7V22H22V7L12 2ZM20 20H4V9L12 5L20 9V20Z"/>';
-    }
-  };
+const createCustomIcon = (color: string, saturationColor: string, type: string, isBooking: boolean = false) => {
+  const typeInfo = INSTITUTION_TYPES.find(t => t.type === type);
+  const IconComponent = typeInfo?.icon || Navigation;
 
   return L.divIcon({
     className: 'custom-div-icon',
     html: `<div style="position: relative; width: 64px; height: 64px; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.35));">
             <div style="background-color: ${color}; width: 54px; height: 54px; border-radius: 18px; border: 3.5px solid white; box-shadow: 0 12px 30px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); position: absolute; top: 0; left: 0;">
               <div style="transform: rotate(-45deg); color: white;">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${getIconPath(type)}</svg>
+                ${renderToString(<IconComponent size={28} strokeWidth={2.5} color="currentColor" />)}
               </div>
             </div>
-            <div style="position: absolute; top: -2px; right: -2px; width: 24px; height: 24px; background-color: ${saturationColor}; border: 3px solid white; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.35); z-index: 10;"></div>
+            ${!isBooking ? `<div style="position: absolute; top: -2px; right: -2px; width: 24px; height: 24px; background-color: ${saturationColor}; border: 3px solid white; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.35); z-index: 10;"></div>` : ''}
           </div>`,
     iconSize: [64, 64],
     iconAnchor: [32, 64],
@@ -252,6 +221,7 @@ export const MapView: React.FC<MapViewProps> = ({
         {institutions.map((inst) => {
           const typeInfo = INSTITUTION_TYPES.find(t => t.type === inst.type);
           const color = typeInfo?.color || '#333';
+          const isBooking = typeInfo && ['HEALTHCARE', 'SERVICES', 'TECHNOLOGY'].includes(typeInfo.sector);
           const wait = inst.lastGivenTicket - inst.currentTicket;
           
           let saturationColor = '#22c55e'; // Green
@@ -262,7 +232,7 @@ export const MapView: React.FC<MapViewProps> = ({
               <Marker 
                 key={inst.id} 
                 position={[inst.lat, inst.lng]}
-                icon={createCustomIcon(color, saturationColor, inst.type)}
+                icon={createCustomIcon(color, saturationColor, inst.type, !!isBooking)}
                 eventHandlers={{
                   click: () => onSelectInstitution(inst),
                 }}
@@ -283,20 +253,22 @@ export const MapView: React.FC<MapViewProps> = ({
                         </div>
                       </div>
                       
-                      <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: saturationColor }}></div>
-                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                            {wait} {t('ticketsCount')}
-                          </span>
+                      {!isBooking && (
+                        <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: saturationColor }}></div>
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                              {wait} {t('ticketsCount')}
+                            </span>
+                          </div>
+                          <div 
+                            className="px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter"
+                            style={{ backgroundColor: `${saturationColor}15`, color: saturationColor }}
+                          >
+                            {wait >= 20 ? t('high') : wait >= 10 ? t('medium') : t('low')}
+                          </div>
                         </div>
-                        <div 
-                          className="px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter"
-                          style={{ backgroundColor: `${saturationColor}15`, color: saturationColor }}
-                        >
-                          {wait >= 20 ? t('high') : wait >= 10 ? t('medium') : t('low')}
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </Popup>

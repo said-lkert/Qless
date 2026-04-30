@@ -88,6 +88,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({ searchQuery, onSearc
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               className="flex pointer-events-auto"
+              dir="ltr"
             >
               <button 
                 onClick={onToggleFilter}

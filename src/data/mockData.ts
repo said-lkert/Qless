@@ -1,15 +1,65 @@
 import { Institution } from '../types';
 
-// Helper to generate random busy hours
-const genBusyHours = () => Array.from({ length: 24 }, (_, i) => {
-  if (i < 8 || i > 20) return 0; // Closed hours
-  // Peaks around 10am and 3pm
-  const base = Math.sin((i - 8) * Math.PI / 12) * 80;
-  return Math.max(10, Math.floor(base + Math.random() * 20));
-});
-
 export const mockInstitutions: Institution[] = [
-  // HEALTHCARE - Alger & Center
+  // HEALTHCARE - New Specialized Cabinets
+  ...[
+    // HEMATOLOGIST
+    { id: 'h-hem-1', name: 'Dr. Belhadj - Hématologue', type: 'HEMATOLOGIST', wilaya: 'Alger', commune: 'Sidi M\'Hamed', lat: 36.7565, lng: 3.0535, address: 'Rue Didouche Mourad', closingTime: '16:00', rating: 4.8, reviewsCount: 120, currentTicket: 5, lastGivenTicket: 12 },
+    
+
+    // INFECTIOLOGIST
+    
+    // RHEUMATOLOGIST
+    { id: 'h-rhu-1', name: 'Dr. Benmansour - Rhumatologue', type: 'RHEUMATOLOGIST', wilaya: 'Batna', commune: 'Batna', lat: 35.5560, lng: 6.1750, address: 'Boulevard de l\'Indépendance', closingTime: '18:00', rating: 4.7, reviewsCount: 198, currentTicket: 12, lastGivenTicket: 25 },
+    
+    // PSYCHIATRIST
+    
+
+    // DERMATOLOGIST
+    
+    // ALLERGIST
+    
+    // INTERNAL_MEDICINE
+    
+    // GERIATRICIAN
+    
+    // SPORTS_MEDICINE
+    
+    // ONCOLOGIST
+    
+    // NUCLEAR_MEDICINE
+    { id: 'h-nuc-1', name: 'Centre de Médecine Nucléaire Alger', type: 'NUCLEAR_MEDICINE', wilaya: 'Alger', commune: 'Hydra', lat: 36.7420, lng: 3.0540, address: 'Val d\'Hydra', closingTime: '15:30', rating: 4.9, reviewsCount: 76, currentTicket: 2, lastGivenTicket: 5 },
+    
+    // MEDICAL_GENETICS
+    { id: 'h-gen-med-1', name: 'Dr. Ait Ali - Génétique Médicale', type: 'MEDICAL_GENETICS', wilaya: 'Alger', commune: 'Kouba', lat: 36.7200, lng: 3.0800, address: 'Chemin El Afia', closingTime: '15:00', rating: 4.9, reviewsCount: 32, currentTicket: 1, lastGivenTicket: 2 },
+    
+    // TOXICOLOGIST
+    { id: 'h-tox-1', name: 'Cabinet de Toxicologie Dr. Meziani', type: 'TOXICOLOGIST', wilaya: 'Alger', commune: 'Cheraga', lat: 36.7560, lng: 2.9910, address: 'Quartier des Affaires', closingTime: '16:00', rating: 4.8, reviewsCount: 56, currentTicket: 2, lastGivenTicket: 5 },
+    
+    // NEUROSURGEON
+    { id: 'h-neu-sur-1', name: 'Dr. Ouali - Neurochirurgien', type: 'NEUROSURGEON', wilaya: 'Alger', commune: 'Draria', lat: 36.7150, lng: 2.9900, address: 'Boulevard du 1er Novembre', closingTime: '18:00', rating: 4.9, reviewsCount: 450, currentTicket: 3, lastGivenTicket: 8 },
+    
+    // ORTHOPEDIC_SURGEON
+    { id: 'h-ort-1', name: 'Centre Orthopédique Djamel - Dr. Slimani', type: 'ORTHOPEDIC_SURGEON', wilaya: 'Blida', commune: 'Blida', lat: 36.4715, lng: 2.8305, address: 'Place de la Liberté', closingTime: '19:00', rating: 4.8, reviewsCount: 890, currentTicket: 25, lastGivenTicket: 60 },
+    
+    // PLASTIC_SURGEON
+    { id: 'h-pla-1', name: 'Esthétique Alger - Dr. Benmoussa', type: 'PLASTIC_SURGEON', wilaya: 'Alger', commune: 'Hydra', lat: 36.7425, lng: 3.0555, address: 'Sidi Yahia', closingTime: '20:00', rating: 4.9, reviewsCount: 1200, currentTicket: 5, lastGivenTicket: 20 },
+    
+    // UROLOGIST
+    { id: 'h-uro-1', name: 'Cabinet d\'Urologie Dr. Larbi', type: 'UROLOGIST', wilaya: 'Alger', commune: 'Dely Ibrahim', lat: 36.7560, lng: 2.9910, address: 'Route de Chéraga', closingTime: '17:00', rating: 4.7, reviewsCount: 340, currentTicket: 10, lastGivenTicket: 25 },
+    
+    // PEDIATRICIAN
+    { id: 'h-ped-1', name: 'Dr. Amrani - Pédiatre', type: 'PEDIATRICIAN', wilaya: 'Alger', commune: 'Zéralda', lat: 36.7210, lng: 2.8510, address: 'Lotissement Sidi Larbi', closingTime: '18:30', rating: 4.9, reviewsCount: 650, currentTicket: 15, lastGivenTicket: 40 },
+    
+    // GYNECOLOGIST
+    { id: 'h-gyn-1', name: 'Dr. Bensenouci - Gynécologue', type: 'GYNECOLOGIST', wilaya: 'Alger', commune: 'Staoueli', lat: 36.7510, lng: 2.8910, address: 'Boulevard Mer & Soleil', closingTime: '19:00', rating: 4.8, reviewsCount: 920, currentTicket: 20, lastGivenTicket: 55 },
+    
+    // OBSTETRICIAN
+    { id: 'h-obs-1', name: 'Centre Obstétrique Dr. Leila', type: 'OBSTETRICIAN', wilaya: 'Alger', commune: 'Kouba', lat: 36.7210, lng: 3.0810, address: 'Les Vergers', closingTime: '20:00', rating: 4.9, reviewsCount: 740, currentTicket: 10, lastGivenTicket: 30 },
+    
+    // NEUROLOGIST
+  ],
+  // HEALTHCARE - Clinics & Hospitals (Original)
   {
     id: 'h1',
     name: 'Clinique Al-Azhar',
@@ -24,10 +74,7 @@ export const mockInstitutions: Institution[] = [
     reviewsCount: 980,
     currentTicket: 67,
     lastGivenTicket: 89,
-    photos: [
-      'https://picsum.photos/seed/algiers-clinic/800/600',
-      'https://picsum.photos/seed/hospital-room/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584032128549-0c6560b2eb30?auto=format&fit=crop&q=80&w=800']
   },
   {
     id: 'h2',
@@ -43,10 +90,7 @@ export const mockInstitutions: Institution[] = [
     reviewsCount: 340,
     currentTicket: 8,
     lastGivenTicket: 15,
-    photos: [
-      'https://picsum.photos/seed/doctor-office/800/600',
-      'https://picsum.photos/seed/medical-consult/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584032128549-0c6560b2eb30?auto=format&fit=crop&q=80&w=800']
   },
   {
     id: 'h-orl',
@@ -62,10 +106,7 @@ export const mockInstitutions: Institution[] = [
     reviewsCount: 112,
     currentTicket: 4,
     lastGivenTicket: 9,
-    photos: [
-      'https://picsum.photos/seed/medical-center/800/600',
-      'https://picsum.photos/seed/waiting-room-orl/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1629156119525-30a190084c8c?auto=format&fit=crop&q=80&w=800']
   },
   {
     id: 'h-ophtalmo',
@@ -81,47 +122,293 @@ export const mockInstitutions: Institution[] = [
     reviewsCount: 88,
     currentTicket: 3,
     lastGivenTicket: 7,
-    photos: [
-      'https://picsum.photos/seed/eye-center/800/600',
-      'https://picsum.photos/seed/vision-test/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584032128549-0c6560b2eb30?auto=format&fit=crop&q=80&w=800']
   },
   {
-    id: 'h-pharmacy',
-    name: 'Pharmacie de la Grande Poste',
-    type: 'PHARMACY',
-    wilaya: 'Alger',
-    commune: 'Alger Centre',
-    lat: 36.7725,
-    lng: 3.0610,
-    address: 'Rue Larbi Ben M\'hidi',
+    id: 'h-azazga-gen',
+    name: 'Cabinet Médical Azazga',
+    type: 'GENERALIST',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Azazga',
+    lat: 36.74,
+    lng: 4.37,
+    address: 'Azazga Centre',
+    closingTime: '17:00',
+    rating: 4.5,
+    reviewsCount: 100,
+    currentTicket: 5,
+    lastGivenTicket: 10
+  },
+  {
+    id: 'h-freha-ped',
+    name: 'Cabinet Pédiatrie Freha',
+    type: 'PEDIATRICIAN',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Freha',
+    lat: 36.73,
+    lng: 4.41,
+    address: 'Freha Centre',
+    closingTime: '17:00',
+    rating: 4.6,
+    reviewsCount: 120,
+    currentTicket: 3,
+    lastGivenTicket: 8
+  },
+  {
+    id: 'h-bouz-dent',
+    name: 'Cabinet Dentaire Bouzegeune',
+    type: 'DENTIST',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Bouzegeune',
+    lat: 36.65,
+    lng: 4.52,
+    address: 'Bouzegeune Centre',
+    closingTime: '17:00',
+    rating: 4.5,
+    reviewsCount: 90,
+    currentTicket: 2,
+    lastGivenTicket: 5
+  },
+  {
+    id: 'h-ougnoune-gyn',
+    name: 'Cabinet Gynécologie Ougnoune',
+    type: 'GYNECOLOGIST',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Ougnoune',
+    lat: 36.64,
+    lng: 4.5,
+    address: 'Ougnoune Centre',
+    closingTime: '17:00',
+    rating: 4.7,
+    reviewsCount: 150,
+    currentTicket: 5,
+    lastGivenTicket: 12
+  },
+  {
+    id: 'h-pulmo',
+    name: 'Cabinet de Pneumologie Dr. Kadi',
+    type: 'PULMONOLOGIST',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.7118,
+    lng: 4.0459,
+    address: 'Place de la Liberté, Tizi Ouzou',
+    closingTime: '17:30',
+    rating: 4.7,
+    reviewsCount: 145,
+    currentTicket: 5,
+    lastGivenTicket: 12,
+    photos: ['https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-chu',
+    name: 'CHU Nedir Mohamed',
+    type: 'HOPITAL_PRIVE',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.7164,
+    lng: 4.0487,
+    address: "Rue de l'Hôpital, Tizi Ouzou",
     closingTime: '23:59',
-    rating: 4.8,
-    reviewsCount: 450,
+    rating: 4.2,
+    reviewsCount: 2150,
+    currentTicket: 45,
+    lastGivenTicket: 120,
+    photos: ['https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-slimana',
+    name: 'Clinique Slimana',
+    type: 'CLINIQUE',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.7085,
+    lng: 4.0550,
+    address: 'Boulevard Stiti Ali, Tizi Ouzou',
+    closingTime: '20:00',
+    rating: 4.5,
+    reviewsCount: 320,
+    currentTicket: 12,
+    lastGivenTicket: 35,
+    photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584032128549-0c6560b2eb30?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-nv-1',
+    name: 'Clinique Dentaire Nouvelle Ville',
+    type: 'DENTIST',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.7001,
+    lng: 4.0450,
+    address: 'Cité 2000 Logements, Nouvelle Ville Tizi Ouzou',
+    closingTime: '18:00',
+    rating: 4.7,
+    reviewsCount: 156,
     currentTicket: 12,
     lastGivenTicket: 20,
-    photos: [
-      'https://picsum.photos/seed/algiers-street/800/600',
-      'https://picsum.photos/seed/pharmacy-shelf/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-nv-2',
+    name: "Laboratoire d'Analyses Médicales",
+    type: 'LABORATORY',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.6995,
+    lng: 4.0460,
+    address: "Boulevard de l'Indépendance, Nouvelle Ville Tizi Ouzou",
+    closingTime: '16:30',
+    rating: 4.5,
+    reviewsCount: 302,
+    currentTicket: 45,
+    lastGivenTicket: 60,
+    photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
   },
 
-  // FINANCE - West (Oran)
+  // FINANCE - Banks & Insurances
   {
-    id: 'f1',
+    id: 'f-hsbc',
+    name: 'HSBC Algerie',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Alger',
+    commune: 'Zeralda',
+    lat: 36.7200,
+    lng: 2.8500,
+    address: 'Quartier d\'affaires Zeralda',
+    closingTime: '16:00',
+    rating: 4.8,
+    reviewsCount: 650,
+    currentTicket: 12,
+    lastGivenTicket: 25,
+    photos: ['https://images.unsplash.com/photo-1541354346781-b9l61f6460fa?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1556742049-02e4d50d9c94?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-baraka',
+    name: 'Al Baraka Bank',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Alger',
+    commune: 'Hydra',
+    lat: 36.7415,
+    lng: 3.0535,
+    address: 'Place Al Qods, Hydra',
+    closingTime: '15:30',
+    rating: 4.6,
+    reviewsCount: 2100,
+    currentTicket: 105,
+    lastGivenTicket: 140,
+    photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-salam-2',
+    name: 'Al Salam Bank',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Alger',
+    commune: 'Bab Ezzouar',
+    lat: 36.7150,
+    lng: 3.1950,
+    address: 'Les Pins Maritimes, Bab Ezzouar',
+    closingTime: '16:00',
+    rating: 4.7,
+    reviewsCount: 3200,
+    currentTicket: 210,
+    lastGivenTicket: 245,
+    photos: ['https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-maa',
+    name: 'SAA assurance',
+    type: 'ASSURANCE',
+    wilaya: 'Alger',
+    commune: 'Alger Centre',
+    lat: 36.7730,
+    lng: 3.0615,
+    address: 'Boulevard Victor Hugo',
+    closingTime: '17:30',
+    rating: 4.2,
+    reviewsCount: 1540,
+    currentTicket: 45,
+    lastGivenTicket: 60,
+    photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-gam',
+    name: 'GAM assurance',
+    type: 'ASSURANCE',
+    wilaya: 'Alger',
+    commune: 'El Biar',
+    lat: 36.7690,
+    lng: 3.0280,
+    address: 'Avenue Ali Khodja',
+    closingTime: '17:00',
+    rating: 4.4,
+    reviewsCount: 890,
+    currentTicket: 12,
+    lastGivenTicket: 20,
+    photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-axa',
+    name: 'AXA Assurances Algérie',
+    type: 'ASSURANCE',
+    wilaya: 'Alger',
+    commune: 'Hydra',
+    lat: 36.7405,
+    lng: 3.0545,
+    address: 'Boulevard Mohamed V',
+    closingTime: '17:00',
+    rating: 4.5,
+    reviewsCount: 2200,
+    currentTicket: 89,
+    lastGivenTicket: 120,
+    photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-salama',
+    name: 'SALAMA Assurances DG',
+    type: 'ASSURANCE',
+    wilaya: 'Alger',
+    commune: 'Dely Ibrahim',
+    lat: 36.7565,
+    lng: 2.9915,
+    address: 'Cité 11 Décembre, Dely Ibrahim',
+    closingTime: '17:00',
+    rating: 4.3,
+    reviewsCount: 1100,
+    currentTicket: 56,
+    lastGivenTicket: 80,
+    photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f-gig',
+    name: 'GIG ALGERIA',
+    type: 'ASSURANCE',
+    wilaya: 'Alger',
+    commune: 'Birkhadem',
+    lat: 36.7115,
+    lng: 3.0515,
+    address: 'Centre des affaires, Birkhadem',
+    closingTime: '17:30',
+    rating: 4.6,
+    reviewsCount: 950,
+    currentTicket: 23,
+    lastGivenTicket: 45,
+    photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'f1-old',
     name: 'Société Générale Algérie - Oran Front de Mer',
     type: 'BANQUE_PRIVEE',
     wilaya: 'Oran',
     commune: 'Oran',
     lat: 35.7080,
     lng: -0.6350,
-    address: 'Bd de l\'ALN (Front de Mer), Oran',
+    address: "Bd de l'ALN (Front de Mer), Oran",
     closingTime: '16:30',
     rating: 4.3,
     reviewsCount: 1100,
     currentTicket: 145,
     lastGivenTicket: 178,
-    photos: ['https://picsum.photos/seed/oran-city/800/600', 'https://picsum.photos/seed/bank-interior/800/600']
+    photos: ['https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800']
   },
   {
     id: 'f-assurance',
@@ -137,10 +424,7 @@ export const mockInstitutions: Institution[] = [
     reviewsCount: 320,
     currentTicket: 5,
     lastGivenTicket: 12,
-    photos: [
-      'https://picsum.photos/seed/office-building/800/600',
-      'https://picsum.photos/seed/insurance-oran/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
   },
   {
     id: 'f-invest',
@@ -156,695 +440,295 @@ export const mockInstitutions: Institution[] = [
     reviewsCount: 56,
     currentTicket: 1,
     lastGivenTicket: 3,
-    photos: [
-      'https://picsum.photos/seed/business-modern/800/600',
-      'https://picsum.photos/seed/stock-oran/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800']
   },
-
-  // TRADE - East (Constantine & Sétif)
   {
-    id: 't-shop',
-    name: 'Sétif Mall - Supermarché Uno',
-    type: 'SHOP',
+    id: 'tz-bank',
+    name: 'Banque CPA Tizi Ouzou',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.7130,
+    lng: 4.0470,
+    address: 'Avenue Abbane Ramdane, Tizi Ouzou',
+    closingTime: '16:00',
+    rating: 3.8,
+    reviewsCount: 540,
+    currentTicket: 89,
+    lastGivenTicket: 115,
+    photos: ['https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-nv-3',
+    name: 'Agence BDL Nouvelle Ville',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.6980,
+    lng: 4.0470,
+    address: 'Rond-point des Palmiers, Nouvelle Ville Tizi Ouzou',
+    closingTime: '15:30',
+    rating: 3.9,
+    reviewsCount: 890,
+    currentTicket: 105,
+    lastGivenTicket: 130,
+    photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-lni-1',
+    name: 'Banque BADR LNI',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Larbaa Nath Irathen',
+    lat: 36.6360,
+    lng: 4.2040,
+    address: 'Place des Martyrs, LNI',
+    closingTime: '15:30',
+    rating: 4.0,
+    reviewsCount: 180,
+    currentTicket: 45,
+    lastGivenTicket: 60,
+    photos: ['https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1541354346781-b9l61f6460fa?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'tz-tig-1',
+    name: 'CNEP Banque Tigzirt',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tigzirt',
+    lat: 36.8910,
+    lng: 4.1190,
+    address: 'Avenue de la Mer, Tigzirt',
+    closingTime: '15:30',
+    rating: 3.9,
+    reviewsCount: 320,
+    currentTicket: 45,
+    lastGivenTicket: 58,
+    photos: ['https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1541354346781-b9l61f6460fa?auto=format&fit=crop&q=80&w=800']
+  },
+  // NEW INSTITUTIONS ADDED
+  {
+    id: 'h-gastro-1',
+    name: 'Clinique de Gastro-entérologie El Chiffa',
+    type: 'GASTROENTEROLOGIST',
+    wilaya: 'Constantine',
+    commune: 'Zouaghi',
+    lat: 36.3245,
+    lng: 6.6450,
+    address: 'Cité Zouaghi Ain El Bey, Constantine',
+    closingTime: '18:00',
+    rating: 4.8,
+    reviewsCount: 234,
+    currentTicket: 14,
+    lastGivenTicket: 30,
+    photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584032128549-0c6560b2eb30?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'h-nephro-1',
+    name: 'Dr. Bouzid - Néphrologie',
+    type: 'NEPHROLOGIST',
+    wilaya: 'Annaba',
+    commune: 'Annaba',
+    lat: 36.9000,
+    lng: 7.7667,
+    address: 'Boulevard du 1er Novembre 1954, Annaba',
+    closingTime: '17:30',
+    rating: 4.6,
+    reviewsCount: 156,
+    currentTicket: 5,
+    lastGivenTicket: 12,
+    photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584032128549-0c6560b2eb30?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'h-neuro-1',
+    name: 'Cabinet de Neurologie Ibn Khaldoun',
+    type: 'NEUROLOGIST',
     wilaya: 'Sétif',
     commune: 'Sétif',
     lat: 36.1911,
-    lng: 5.4133,
-    address: 'Place de l\'Indépendance, Sétif Mall',
-    closingTime: '22:00',
-    rating: 4.5,
-    reviewsCount: 5600,
-    currentTicket: 89,
-    lastGivenTicket: 120,
-    photos: ['https://picsum.photos/seed/mall/800/600', 'https://picsum.photos/seed/market/800/600']
+    lng: 5.4137,
+    address: 'Avenue de la République, Sétif',
+    closingTime: '17:00',
+    rating: 4.9,
+    reviewsCount: 189,
+    currentTicket: 2,
+    lastGivenTicket: 7,
+    photos: ['https://images.unsplash.com/photo-1551076805-e1869043e560?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800']
   },
   {
-    id: 't-wholesale',
-    name: 'Grossiste Alimentaire El Eulma',
-    type: 'WHOLESALER',
-    wilaya: 'Sétif',
-    commune: 'El Eulma',
-    lat: 36.1550,
-    lng: 5.6920,
-    address: 'Quartier Dubai, El Eulma',
+    id: 'h-endo-1',
+    name: 'Centre Endocrinologie Diabétologie',
+    type: 'ENDOCRINOLOGIST',
+    wilaya: 'Tlemcen',
+    commune: 'Tlemcen',
+    lat: 34.8828,
+    lng: -1.3167,
+    address: 'Place Pasteur, Tlemcen',
     closingTime: '18:00',
-    rating: 4.2,
-    reviewsCount: 1500,
-    currentTicket: 45,
-    lastGivenTicket: 70,
-    photos: [
-      'https://picsum.photos/seed/warehouse/800/600',
-      'https://picsum.photos/seed/wholesale-dz/800/600'
-    ]
+    rating: 4.7,
+    reviewsCount: 312,
+    currentTicket: 20,
+    lastGivenTicket: 35,
+    photos: ['https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1551076805-e1869043e560?auto=format&fit=crop&q=80&w=800']
   },
   {
-    id: 't-import',
-    name: 'Algérie Import-Export Logistics',
-    type: 'IMPORT_EXPORT',
-    wilaya: 'Skikda',
-    commune: 'Skikda',
-    lat: 36.8762,
-    lng: 6.9092,
-    address: 'Zone Portuaire de Skikda',
-    closingTime: '19:00',
+    id: 'h-gen-4',
+    name: 'PoliClinique Révolution',
+    type: 'GENERALIST',
+    wilaya: 'Tizi Ouzou',
+    commune: 'Tizi Ouzou',
+    lat: 36.7559,
+    lng: 5.0843,
+    address: 'Place de l\'Indépendance, Tizi Ouzou',
+    closingTime: '23:59',
     rating: 4.4,
-    reviewsCount: 89,
-    currentTicket: 3,
-    lastGivenTicket: 10,
-    photos: [
-      'https://picsum.photos/seed/port/800/600',
-      'https://picsum.photos/seed/shipping-containers/800/600'
-    ]
+    reviewsCount: 845,
+    currentTicket: 45,
+    lastGivenTicket: 80,
+    photos: ['https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800']
   },
-
-  // SERVICES - Scattered
+  // MORE PRIVATE BANKS
   {
-    id: 's-consult',
-    name: 'Cabinet de Conseil IT Constantine',
-    type: 'CONSULTING',
+    id: 'bank-bnp-1',
+    name: 'BNP Paribas El Djazaïr',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Alger',
+    commune: 'Bab Ezzouar',
+    lat: 36.7126,
+    lng: 3.1818,
+    address: 'Quartier d\'Affaires, Bab Ezzouar',
+    closingTime: '16:00',
+    rating: 4.2,
+    reviewsCount: 1540,
+    currentTicket: 112,
+    lastGivenTicket: 150,
+    photos: ['https://images.unsplash.com/photo-1556742049-02e4d50d9c94?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'bank-natixis-1',
+    name: 'Natixis Algérie',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Oran',
+    commune: 'Oran',
+    lat: 35.7000,
+    lng: -0.6400,
+    address: 'Boulevard de la Soummam, Oran',
+    closingTime: '16:30',
+    rating: 4.1,
+    reviewsCount: 870,
+    currentTicket: 67,
+    lastGivenTicket: 85,
+    photos: ['https://images.unsplash.com/photo-1556742049-02e4d50d9c94?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'bank-trust-1',
+    name: 'Trust Bank Algeria',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Sétif',
+    commune: 'Sétif',
+    lat: 36.1900,
+    lng: 5.4100,
+    address: 'Cité des 300 logements, Sétif',
+    closingTime: '16:00',
+    rating: 4.3,
+    reviewsCount: 340,
+    currentTicket: 24,
+    lastGivenTicket: 40,
+    photos: ['https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1541354346781-b9l61f6460fa?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'bank-agb-1',
+    name: 'Gulf Bank Algeria (AGB)',
+    type: 'BANQUE_PRIVEE',
     wilaya: 'Constantine',
     commune: 'Constantine',
     lat: 36.3650,
     lng: 6.6147,
     address: 'Avenue Aouati Mostefa, Constantine',
-    closingTime: '18:00',
-    rating: 4.8,
-    reviewsCount: 74,
-    currentTicket: 2,
-    lastGivenTicket: 5,
-    photos: [
-      'https://picsum.photos/seed/constantine-bridge/800/600',
-      'https://picsum.photos/seed/it-office/800/600'
-    ]
+    closingTime: '16:30',
+    rating: 4.5,
+    reviewsCount: 1120,
+    currentTicket: 95,
+    lastGivenTicket: 140,
+    photos: ['https://images.unsplash.com/photo-1556742049-02e4d50d9c94?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800']
   },
   {
-    id: 's-travel',
-    name: 'Sahara Voyages & Tourism Bechar',
-    type: 'TOURISM',
-    wilaya: 'Béchar',
-    commune: 'Taghit',
-    lat: 30.9167,
-    lng: -2.0333,
-    address: 'Place des Palmiers, Taghit',
-    closingTime: '20:00',
-    rating: 4.9,
+    id: 'bank-salam-1',
+    name: 'Al Salam Bank Algeria',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Blida',
+    commune: 'Blida',
+    lat: 36.4700,
+    lng: 2.8277,
+    address: 'Boulevard Mohamed Boudiaf, Blida',
+    closingTime: '16:00',
+    rating: 4.6,
+    reviewsCount: 890,
+    currentTicket: 45,
+    lastGivenTicket: 70,
+    photos: ['https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1541354346781-b9l61f6460fa?auto=format&fit=crop&q=80&w=800']
+  },
+  {
+    id: 'bank-sga-1',
+    name: 'Société Générale Algérie',
+    type: 'BANQUE_PRIVEE',
+    wilaya: 'Annaba',
+    commune: 'Annaba',
+    lat: 36.9050,
+    lng: 7.7550,
+    address: 'Rue Benboulaid Mustapha, Annaba',
+    closingTime: '16:30',
+    rating: 4.3,
     reviewsCount: 1200,
-    currentTicket: 1,
-    lastGivenTicket: 4,
-    photos: ['https://picsum.photos/seed/desert-sahara/800/600', 'https://picsum.photos/seed/oasis/800/600']
+    currentTicket: 110,
+    lastGivenTicket: 180,
+    photos: ['https://images.unsplash.com/photo-1556742049-02e4d50d9c94?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800']
   },
   {
-    id: 's-transport',
-    name: 'Trans-Logistics Bejaia Port',
-    type: 'TRANSPORT',
+    id: 'bank-hbtf-1',
+    name: 'Housing Bank (HBTF)',
+    type: 'BANQUE_PRIVEE',
     wilaya: 'Béjaïa',
     commune: 'Béjaïa',
-    lat: 36.7515,
-    lng: 5.0558,
-    address: 'Terminal Container Bejaia',
-    closingTime: '18:00',
+    lat: 36.7510,
+    lng: 5.0600,
+    address: 'Quartier Seghir, Béjaïa',
+    closingTime: '16:00',
     rating: 4.0,
-    reviewsCount: 220,
-    currentTicket: 14,
-    lastGivenTicket: 25,
-    photos: [
-      'https://picsum.photos/seed/bejaia-bay/800/600',
-      'https://picsum.photos/seed/truck-fleet/800/600'
-    ]
-  },
-  {
-    id: 's-clean',
-    name: 'Nettoyage Pro Annaba',
-    type: 'CLEANING',
-    wilaya: 'Annabba',
-    commune: 'Annaba',
-    lat: 36.9000,
-    lng: 7.7667,
-    address: 'Cours de la Révolution, Annaba',
-    closingTime: '17:30',
-    rating: 4.6,
-    reviewsCount: 45,
-    currentTicket: 2,
-    lastGivenTicket: 6,
-    photos: [
-      'https://picsum.photos/seed/mediterranean/800/600',
-      'https://picsum.photos/seed/cleaning-service/800/600'
-    ]
-  },
-  {
-    id: 's-personal',
-    name: 'Services à la Personne El Oued',
-    type: 'PERSONAL_SERVICE',
-    wilaya: 'El Oued',
-    commune: 'El Oued',
-    lat: 33.3667,
-    lng: 6.8667,
-    address: 'Cité des 1000 Coupoles',
-    closingTime: '19:00',
-    rating: 4.7,
-    reviewsCount: 38,
-    currentTicket: 1,
-    lastGivenTicket: 4,
-    photos: [
-      'https://picsum.photos/seed/souk/800/600',
-      'https://picsum.photos/seed/care-home/800/600'
-    ]
-  },
-
-  // AGRICULTURE - Biskra & South
-  {
-    id: 'a-farm',
-    name: 'Palmeraie Deglet Nour Biskra',
-    type: 'FARM',
-    wilaya: 'Biskra',
-    commune: 'Tolga',
-    lat: 34.8500,
-    lng: 5.3833,
-    address: 'Zone Agricole Tolga',
-    closingTime: '18:00',
-    rating: 4.9,
-    reviewsCount: 250,
-    currentTicket: 8,
-    lastGivenTicket: 15,
-    photos: [
-      'https://picsum.photos/seed/dates-palm/800/600',
-      'https://picsum.photos/seed/biskra-oasis/800/600'
-    ]
-  },
-  {
-    id: 'a-food',
-    name: 'Laiterie de la Mitidja Blida',
-    type: 'FOOD_PRODUCTION',
-    wilaya: 'Blida',
-    commune: 'Boufarik',
-    lat: 36.4700,
-    lng: 2.8300,
-    address: 'Route de Blida, Boufarik',
-    closingTime: '17:00',
-    rating: 4.4,
-    reviewsCount: 890,
+    reviewsCount: 412,
     currentTicket: 34,
-    lastGivenTicket: 50,
-    photos: [
-      'https://picsum.photos/seed/mitidja/800/600',
-      'https://picsum.photos/seed/milk-production/800/600'
-    ]
-  },
-
-  // MANUFACTURING - BBA & Industrial Zones
-  {
-    id: 'm-factory',
-    name: 'Condor Electronics Plant BBA',
-    type: 'ELECTRONICS',
-    wilaya: 'Bordj Bou Arreridj',
-    commune: 'Bordj Bou Arreridj',
-    lat: 36.0733,
-    lng: 4.7611,
-    address: 'Zone Industrielle Bordj Bou Arreridj',
-    closingTime: '16:00',
-    rating: 4.7,
-    reviewsCount: 2500,
-    currentTicket: 200,
-    lastGivenTicket: 250,
-    photos: [
-      'https://picsum.photos/seed/factory-electronics/800/600',
-      'https://picsum.photos/seed/condor-bba/800/600'
-    ]
+    lastGivenTicket: 55,
+    photos: ['https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1501167733854-f584e03f90b4?auto=format&fit=crop&q=80&w=800']
   },
   {
-    id: 'm-textile',
-    name: 'Algérie Textile Tlemcen',
-    type: 'TEXTILE',
-    wilaya: 'Tlemcen',
-    commune: 'Maghnia',
-    lat: 34.8460,
-    lng: -1.7300,
-    address: 'Zone Industrielle Maghnia',
-    closingTime: '17:00',
-    rating: 4.1,
-    reviewsCount: 150,
-    currentTicket: 12,
-    lastGivenTicket: 20,
-    photos: [
-      'https://picsum.photos/seed/tlemcen-zianides/800/600',
-      'https://picsum.photos/seed/textile-mill/800/600'
-    ]
-  },
-
-  // TECHNOLOGY - Tech Parks
-  {
-    id: 'te-startup',
-    name: 'Sidi Abdellah Cyber-Park HQ',
-    type: 'STARTUP',
-    wilaya: 'Alger',
-    commune: 'Zéralda',
-    lat: 36.7160,
-    lng: 2.8460,
-    address: 'Incubateur National ANPT',
-    closingTime: '20:00',
-    rating: 4.9,
-    reviewsCount: 450,
-    currentTicket: 5,
-    lastGivenTicket: 12,
-    photos: [
-      'https://picsum.photos/seed/tech-modern/800/600',
-      'https://picsum.photos/seed/cyberpark-sidi-abdellah/800/600'
-    ]
-  },
-  {
-    id: 'te-telecom',
-    name: 'Djezzy Direction Générale',
-    type: 'TELECOM',
-    wilaya: 'Alger',
-    commune: 'Dar El Beïda',
-    lat: 36.7140,
-    lng: 3.1900,
-    address: 'Route d\'Arzew, Dar El Beïda',
-    closingTime: '18:00',
-    rating: 4.4,
-    reviewsCount: 3400,
-    currentTicket: 120,
-    lastGivenTicket: 156,
-    photos: [
-      'https://picsum.photos/seed/telecom/800/600',
-      'https://picsum.photos/seed/phone-tower/800/600'
-    ]
-  },
-
-  // CONSTRUCTION
-  {
-    id: 'c-realestate',
-    name: 'Promotion Immobilière Bessa Alger',
-    type: 'REAL_ESTATE',
-    wilaya: 'Alger',
-    commune: 'Chéraga',
-    lat: 36.7620,
-    lng: 2.9550,
-    address: 'Route de Bouchaoui, Chéraga',
-    closingTime: '17:00',
-    rating: 4.2,
-    reviewsCount: 1200,
-    currentTicket: 45,
-    lastGivenTicket: 67,
-    photos: [
-      'https://picsum.photos/seed/modern-algiers/800/600',
-      'https://picsum.photos/seed/construction-site/800/600'
-    ]
-  },
-
-  // EDUCATION
-  {
-    id: 'e-university',
-    name: 'Université Privée Constantine 3',
-    type: 'UNIVERSITY',
-    wilaya: 'Constantine',
-    commune: 'El Khroub',
-    lat: 36.2650,
-    lng: 6.6900,
-    address: 'Nouvelle Ville Ali Mendjeli',
-    closingTime: '19:00',
-    rating: 4.6,
-    reviewsCount: 8900,
-    currentTicket: 450,
-    lastGivenTicket: 520,
-    photos: [
-      'https://picsum.photos/seed/university-campus/800/600',
-      'https://picsum.photos/seed/lecture-hall/800/600'
-    ]
-  },
-
-  // ADDING MISSING TYPES FOR COMPLETE COVERAGE
-  // HEALTHCARE CONTINUED
-  {
-    id: 'h-pulmo',
-    name: 'Cabinet de Pneumologie Dr. Kadi',
-    type: 'PULMONOLOGIST',
-    wilaya: 'Tizi Ouzou',
-    commune: 'Tizi Ouzou',
-    lat: 36.7118,
-    lng: 4.0459,
-    address: 'Place de la Liberté, Tizi Ouzou',
-    closingTime: '17:30',
-    rating: 4.7,
-    reviewsCount: 145,
-    currentTicket: 5,
-    lastGivenTicket: 12,
-    photos: [
-      'https://picsum.photos/seed/kabylie-mountains/800/600',
-      'https://picsum.photos/seed/clinic-tizi/800/600'
-    ]
-  },
-  {
-    id: 'h-gastro',
-    name: 'Dr. Merad - Gastro-entérologue',
-    type: 'GASTROENTEROLOGIST',
-    wilaya: 'Djelfa',
-    commune: 'Djelfa',
-    lat: 34.6667,
-    lng: 3.2500,
-    address: 'Cité des 40 Logements, Djelfa',
-    closingTime: '18:00',
-    rating: 4.5,
-    reviewsCount: 67,
-    currentTicket: 2,
-    lastGivenTicket: 8,
-    photos: [
-      'https://picsum.photos/seed/djelfa-steppe/800/600',
-      'https://picsum.photos/seed/medical-djelfa/800/600'
-    ]
-  },
-  {
-    id: 'h-nephro',
-    name: 'Centre d\'Hémodialyse El Masra',
-    type: 'NEPHROLOGIST',
-    wilaya: 'Mascara',
-    commune: 'Mascara',
-    lat: 35.3961,
-    lng: 0.1403,
-    address: 'Route d\'Oran, Mascara',
-    closingTime: '20:00',
-    rating: 4.6,
-    reviewsCount: 89,
-    currentTicket: 15,
-    lastGivenTicket: 25,
-    photos: [
-      'https://picsum.photos/seed/mascara-fields/800/600',
-      'https://picsum.photos/seed/dialysis-unit/800/600'
-    ]
-  },
-  {
-    id: 'h-neuro',
-    name: 'Neurologie Dr. Belhadj',
-    type: 'NEUROLOGIST',
-    wilaya: 'Sidi Bel Abbès',
-    commune: 'Sidi Bel Abbès',
-    lat: 35.1899,
-    lng: -0.6308,
-    address: 'Boulevard Mektoub, SBA',
-    closingTime: '17:00',
-    rating: 4.8,
-    reviewsCount: 56,
-    currentTicket: 1,
-    lastGivenTicket: 5,
-    photos: [
-      'https://picsum.photos/seed/mektoub-sba/800/600',
-      'https://picsum.photos/seed/neurology-room/800/600'
-    ]
-  },
-  {
-    id: 'h-endo',
-    name: 'Endocrinologie Dr. Toumi',
-    type: 'ENDOCRINOLOGIST',
-    wilaya: 'Mostaganem',
-    commune: 'Mostaganem',
-    lat: 35.9333,
-    lng: 0.0833,
-    address: 'Place du 1er Novembre, Mostaganem',
-    closingTime: '18:00',
-    rating: 4.7,
-    reviewsCount: 42,
-    currentTicket: 3,
-    lastGivenTicket: 7,
-    photos: [
-      'https://picsum.photos/seed/mostaganem-sea/800/600',
-      'https://picsum.photos/seed/medical-mosta/800/600'
-    ]
-  },
-  {
-    id: 'h-gen',
-    name: 'Dr. Brahimi - Médecine Générale',
-    type: 'GENERALIST',
-    wilaya: 'Jijel',
-    commune: 'Jijel',
-    lat: 36.8205,
-    lng: 5.7661,
-    address: 'Corniche de Jijel',
-    closingTime: '17:00',
-    rating: 4.9,
-    reviewsCount: 156,
-    currentTicket: 4,
-    lastGivenTicket: 10,
-    photos: [
-      'https://picsum.photos/seed/jijel-green/800/600',
-      'https://picsum.photos/seed/gp-office/800/600'
-    ]
-  },
-  {
-    id: 'h-hosp',
-    name: 'Hôpital Privé des Oasis',
-    type: 'HOPITAL_PRIVE',
-    wilaya: 'Ghardaïa',
-    commune: 'Ghardaïa',
-    lat: 32.4909,
-    lng: 3.6735,
-    address: 'Vallée du M\'Zab, Ghardaïa',
-    closingTime: '23:59',
-    rating: 4.8,
-    reviewsCount: 670,
-    currentTicket: 56,
-    lastGivenTicket: 89,
-    photos: [
-      'https://picsum.photos/seed/mzab-ghardaia/800/600',
-      'https://picsum.photos/seed/hospital-modern-mzab/800/600'
-    ]
-  },
-
-  // AGRICULTURE CONTINUED
-  {
-    id: 'a-export',
-    name: 'Exportation Agrumes de la Mitidja',
-    type: 'AGRI_EXPORT',
-    wilaya: 'Tipaza',
-    commune: 'Tipaza',
-    lat: 36.5894,
-    lng: 2.4475,
-    address: 'Zone Industrielle Tipaza',
-    closingTime: '18:00',
-    rating: 4.5,
-    reviewsCount: 34,
-    currentTicket: 2,
-    lastGivenTicket: 5,
-    photos: [
-      'https://picsum.photos/seed/tipaza-roman/800/600',
-      'https://picsum.photos/seed/citrus-farm/800/600'
-    ]
-  },
-
-  // MANUFACTURING CONTINUED
-  {
-    id: 'm-fact',
-    name: 'SPA Ifri - Usine d\'Embouteillage',
-    type: 'FACTORY',
-    wilaya: 'Béjaïa',
-    commune: 'Akbou',
-    lat: 36.4578,
-    lng: 4.5350,
-    address: 'Zone Industrielle Taharacht, Akbou',
-    closingTime: '18:00',
-    rating: 4.7,
-    reviewsCount: 890,
-    currentTicket: 12,
-    lastGivenTicket: 20,
-    photos: [
-      'https://picsum.photos/seed/bejaia-mountains/800/600',
-      'https://picsum.photos/seed/water-bottling/800/600'
-    ]
-  },
-  {
-    id: 'm-car',
-    name: 'Usine de Montage TMC',
-    type: 'CAR_MANUF',
-    wilaya: 'Tiaret',
-    commune: 'Tiaret',
-    lat: 35.3711,
-    lng: 1.3169,
-    address: 'Zone de Développement Tiaret',
-    closingTime: '16:00',
-    rating: 4.3,
-    reviewsCount: 450,
-    currentTicket: 5,
-    lastGivenTicket: 15,
-    photos: [
-      'https://picsum.photos/seed/tiaret-landscape/800/600',
-      'https://picsum.photos/seed/car-assembly/800/600'
-    ]
-  },
-  {
-    id: 'm-const',
-    name: 'Cimenterie GICA Oued Fodda',
-    type: 'CONST_MATERIALS',
-    wilaya: 'Chlef',
-    commune: 'Sidi Akkacha',
-    lat: 36.4647,
-    lng: 1.3317,
-    address: 'Zone Industrielle Oued Fodda',
-    closingTime: '17:00',
-    rating: 4.2,
-    reviewsCount: 120,
-    currentTicket: 8,
-    lastGivenTicket: 12,
-    photos: [
-      'https://picsum.photos/seed/chlef-industry/800/600',
-      'https://picsum.photos/seed/cement-factory/800/600'
-    ]
-  },
-
-  // TECHNOLOGY CONTINUED
-  {
-    id: 'te-soft',
-    name: 'IT Soft Algérie Solutions',
-    type: 'SOFTWARE',
-    wilaya: 'Constantine',
-    commune: 'Didouche Mourad',
-    lat: 36.4500,
-    lng: 6.6400,
-    address: 'Cyber Village Constantine',
-    closingTime: '18:30',
-    rating: 4.8,
-    reviewsCount: 92,
-    currentTicket: 2,
-    lastGivenTicket: 6,
-    photos: [
-      'https://picsum.photos/seed/constantine-night/800/600',
-      'https://picsum.photos/seed/coding-office/800/600'
-    ]
-  },
-  {
-    id: 'te-cyber',
-    name: 'DZ Cyber Security Hub',
-    type: 'CYBERSECURITY',
-    wilaya: 'Alger',
-    commune: 'Sidi M\'Hamed',
-    lat: 36.7550,
-    lng: 3.0550,
-    address: 'Avenue Pasteur, Alger',
-    closingTime: '19:00',
-    rating: 4.9,
-    reviewsCount: 110,
-    currentTicket: 1,
-    lastGivenTicket: 4,
-    photos: [
-      'https://picsum.photos/seed/modern-office-dz/800/600',
-      'https://picsum.photos/seed/server-room/800/600'
-    ]
-  },
-  {
-    id: 'te-digital',
-    name: 'Digicom Tlemcen',
-    type: 'DIGITAL_SERVICE',
+    id: 'bank-fransabank-1',
+    name: 'Fransabank El Djazaïr',
+    type: 'BANQUE_PRIVEE',
     wilaya: 'Tlemcen',
     commune: 'Tlemcen',
-    lat: 34.8783,
+    lat: 34.8810,
     lng: -1.3150,
-    address: 'Immeuble Zianides, Tlemcen',
-    closingTime: '18:00',
-    rating: 4.6,
-    reviewsCount: 78,
-    currentTicket: 3,
-    lastGivenTicket: 8,
-    photos: [
-      'https://picsum.photos/seed/tlemcen-history/800/600',
-      'https://picsum.photos/seed/digital-agency/800/600'
-    ]
-  },
-
-  // CONSTRUCTION CONTINUED
-  {
-    id: 'c-build',
-    name: 'Cosider Construction Adrar',
-    type: 'BUILDING_CO',
-    wilaya: 'Adrar',
-    commune: 'Adrar',
-    lat: 27.8742,
-    lng: -0.2939,
-    address: 'Base de Vie Cosider, Adrar',
+    address: 'Boulevard Khedim Ali, Tlemcen',
     closingTime: '16:00',
-    rating: 4.4,
-    reviewsCount: 210,
-    currentTicket: 12,
+    rating: 4.2,
+    reviewsCount: 230,
+    currentTicket: 18,
     lastGivenTicket: 30,
-    photos: [
-      'https://picsum.photos/seed/adrar-sand/800/600',
-      'https://picsum.photos/seed/construction-adrar/800/600'
-    ]
+    photos: ['https://images.unsplash.com/photo-1541354346781-b9l61f6460fa?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1556742049-02e4d50d9c94?auto=format&fit=crop&q=80&w=800']
   },
-  {
-    id: 'c-dev',
-    name: 'Immo Plus Développement Médéa',
-    type: 'DEVELOPER',
-    wilaya: 'Médéa',
-    commune: 'Médéa',
-    lat: 36.2642,
-    lng: 2.7539,
-    address: 'Boulevard de l\'Indépendance, Médéa',
-    closingTime: '17:00',
-    rating: 4.3,
-    reviewsCount: 88,
-    currentTicket: 4,
-    lastGivenTicket: 10,
-    photos: [
-      'https://picsum.photos/seed/medea-city/800/600',
-      'https://picsum.photos/seed/real-estate-medea/800/600'
-    ]
-  },
+  // MORE HEALTHCARE
+  { id: 'h-oran-c1', name: 'Clinique Pasteur Oran', type: 'CLINIQUE', wilaya: 'Oran', commune: 'Oran', lat: 35.6987, lng: -0.6345, address: 'Rue des Fréres Mokhfi', closingTime: '19:00', rating: 4.8, reviewsCount: 302, currentTicket: 20, lastGivenTicket: 40, photos: ['https://images.unsplash.com/photo-1551076805-e1869043e560?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'h-annaba-opht', name: 'Cabinet Ophtalmo Annaba Dr. Riad', type: 'OPHTHALMOLOGIST', wilaya: 'Annaba', commune: 'Annaba', lat: 36.9000, lng: 7.7667, address: 'Bvd 1er Novembre', closingTime: '17:00', rating: 4.9, reviewsCount: 154, currentTicket: 10, lastGivenTicket: 16, photos: ['https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1629156119525-30a190084c8c?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'h-constantine-gen', name: 'Cabinet Médical Généraliste', type: 'GENERALIST', wilaya: 'Constantine', commune: 'Sidi Mabrouk', lat: 36.3650, lng: 6.6147, address: 'Rue de la Paix', closingTime: '20:00', rating: 4.5, reviewsCount: 412, currentTicket: 55, lastGivenTicket: 70, photos: ['https://images.unsplash.com/photo-1551076805-e1869043e560?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'h-setif-pharm', name: 'Pharmacie Centrale Sétif', type: 'PHARMACY', wilaya: 'Sétif', commune: 'Sétif', lat: 36.1900, lng: 5.4100, address: 'Avenue de la République', closingTime: '23:00', rating: 4.6, reviewsCount: 88, currentTicket: 0, lastGivenTicket: 0, photos: ['https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1629156119525-30a190084c8c?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'h-bejaia-orl', name: 'ORL Bejaia Centre', type: 'ORL', wilaya: 'Bejaia', commune: 'Bejaia', lat: 36.7558, lng: 5.0843, address: 'Quartier Seghir', closingTime: '16:00', rating: 4.4, reviewsCount: 95, currentTicket: 4, lastGivenTicket: 12, photos: ['https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800'] },
 
-  // EDUCATION CONTINUED
-  {
-    id: 'e-school',
-    name: 'École Privée L\'Excellence Blida',
-    type: 'SCHOOL',
-    wilaya: 'Blida',
-    commune: 'Ouled Yaïch',
-    lat: 36.4800,
-    lng: 2.8500,
-    address: 'Quartier Administratif, Blida',
-    closingTime: '16:30',
-    rating: 4.7,
-    reviewsCount: 1200,
-    currentTicket: 89,
-    lastGivenTicket: 156,
-    photos: [
-      'https://picsum.photos/seed/school-algeria/800/600',
-      'https://picsum.photos/seed/classroom/800/600'
-    ]
-  },
-  {
-    id: 'e-train',
-    name: 'Centre de Formation Pro Biskra',
-    type: 'TRAINING_CENTER',
-    wilaya: 'Biskra',
-    commune: 'Biskra',
-    lat: 34.8500,
-    lng: 5.7333,
-    address: 'Avenue de la République, Biskra',
-    closingTime: '20:00',
-    rating: 4.5,
-    reviewsCount: 340,
-    currentTicket: 23,
-    lastGivenTicket: 45,
-    photos: [
-      'https://picsum.photos/seed/biskra-market/800/600',
-      'https://picsum.photos/seed/workshop-train/800/600'
-    ]
-  },
-  {
-    id: 'e-online',
-    name: 'DZ Learn Online Hub',
-    type: 'ONLINE_EDU',
-    wilaya: 'Alger',
-    commune: 'Hydra',
-    lat: 36.7450,
-    lng: 3.0550,
-    address: 'Technoparc Hydra',
-    closingTime: '21:00',
-    rating: 4.8,
-    reviewsCount: 2200,
-    currentTicket: 150,
-    lastGivenTicket: 300,
-    photos: [
-      'https://picsum.photos/seed/student-dz/800/600',
-      'https://picsum.photos/seed/online-learning/800/600'
-    ]
-  }
+  // MORE FINANCE
+  { id: 'f-sg-oran', name: 'Société Générale Oran', type: 'BANQUE_PRIVEE', wilaya: 'Oran', commune: 'Oran', lat: 35.7001, lng: -0.6346, address: 'Bvd Carnot', closingTime: '15:30', rating: 4.0, reviewsCount: 541, currentTicket: 45, lastGivenTicket: 85, photos: ['https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'f-bnp-con', name: 'BNP Paribas El Djazaïr Constantine', type: 'BANQUE_PRIVEE', wilaya: 'Constantine', commune: 'Constantine', lat: 36.3655, lng: 6.6150, address: 'Place des Martyrs', closingTime: '15:30', rating: 4.2, reviewsCount: 310, currentTicket: 20, lastGivenTicket: 40, photos: ['https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'f-natixis-alger', name: 'Natixis Algérie Hydra', type: 'BANQUE_PRIVEE', wilaya: 'Alger', commune: 'Hydra', lat: 36.7380, lng: 3.0530, address: 'Boulevard Said Hamdine', closingTime: '15:45', rating: 3.9, reviewsCount: 154, currentTicket: 12, lastGivenTicket: 34, photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'f-abc-bank', name: 'Bank ABC Algérie', type: 'BANQUE_PRIVEE', wilaya: 'Alger', commune: 'Bir Mourad Raïs', lat: 36.7330, lng: 3.0600, address: 'Les sources', closingTime: '15:30', rating: 4.1, reviewsCount: 209, currentTicket: 8, lastGivenTicket: 30, photos: ['https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'f-gulf-bank', name: 'AGB (Al Salam Bank)', type: 'BANQUE_PRIVEE', wilaya: 'Sétif', commune: 'Sétif', lat: 36.1910, lng: 5.4120, address: 'Avenue 8 Mai 1945', closingTime: '16:00', rating: 4.6, reviewsCount: 420, currentTicket: 25, lastGivenTicket: 60, photos: ['https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'f-fransabank', name: 'Fransabank El Djazaïr', type: 'BANQUE_PRIVEE', wilaya: 'Annaba', commune: 'Annaba', lat: 36.9010, lng: 7.7670, address: 'Rue Emir Abdelkader', closingTime: '15:30', rating: 4.3, reviewsCount: 98, currentTicket: 11, lastGivenTicket: 18, photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800'] },
+  { id: 'f-trust-bank', name: 'Trust Bank Algeria', type: 'BANQUE_PRIVEE', wilaya: 'Alger', commune: 'Bab Ezzouar', lat: 36.7190, lng: 3.1900, address: 'Quartier des affaires', closingTime: '16:00', rating: 4.5, reviewsCount: 651, currentTicket: 33, lastGivenTicket: 70, photos: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800'] }
 ];

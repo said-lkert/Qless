@@ -34,10 +34,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete, showSplash =
   const [isDragging, setIsDragging] = useState(false);
   
   // Auth state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [smsCode, setSmsCode] = useState('');
+  const [firstName, setFirstName] = useState('admin');
+  const [lastName, setLastName] = useState('admin');
+  const [phone, setPhone] = useState('0123456789');
+  const [smsCode, setSmsCode] = useState('1234');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);

@@ -19,7 +19,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [lang]);
 
   const t = React.useCallback((key: TranslationKey) => {
-    return translations[lang][key] || translations['fr'][key];
+    return translations[lang][key] || translations['fr'][key] || String(key);
   }, [lang]);
 
   const value = React.useMemo(() => ({

@@ -32,7 +32,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, un
   ] as const;
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-[2px] rounded-[2.5rem] overflow-hidden z-[1000] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] flex items-center justify-center isolate">
+    <div dir="ltr" className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-[2px] rounded-[2.5rem] overflow-hidden z-[1000] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] flex items-center justify-center isolate">
       {/* Snake Border Gradient Layer */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <motion.div

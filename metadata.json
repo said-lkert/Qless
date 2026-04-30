@@ -1,7 +1,8 @@
 {
-  "name": "Qless",
+  "name": "Qless - Smart Queue Managers",
   "description": "Smart queue management for Algerian private institutions. Features live tracking, smart departure alerts, historical busy hour data, and photo galleries.",
   "requestFramePermissions": [
     "geolocation"
-  ]
+  ],
+  "majorCapabilities": []
 }

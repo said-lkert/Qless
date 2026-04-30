@@ -6,29 +6,37 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatWaitTime(minutes: number, t: (key: any) => string) {
+  const minStr = t('minShort' as any) || 'min';
+  const hStr = t('hourShort' as any) || 'h';
+  const dStr = t('dayShort' as any) || 'j';
+
   if (minutes < 60) {
-    return `${minutes} ${t('min')}`;
+    return `${Math.floor(minutes)} ${minStr}`;
   }
   const totalHours = Math.floor(minutes / 60);
   const remainingMinutes = Math.floor(minutes % 60);
   
   if (totalHours >= 24) {
     const days = Math.floor(totalHours / 24);
-    const remainingHours = totalHours % 24;
+    const hours = Math.floor(totalHours % 24);
     
-    if (remainingHours === 0) {
-      return `${days}${t('dayLabel') || 'j'}`;
-    }
-    return `${days}${t('dayLabel') || 'j'} ${remainingHours}${t('hourLabelShort') || 'h'}`;
+    let result = `${days}${dStr}`;
+    if (hours > 0) result += ` ${hours}${hStr}`;
+    if (remainingMinutes > 0) result += ` ${remainingMinutes}${minStr}`;
+    return result;
   }
-
-  const hourLabel = totalHours > 1 ? t('hours') : t('hour');
   
   if (remainingMinutes === 0) {
-    return `${totalHours}${hourLabel}`;
+    return `${totalHours}${hStr}`;
   }
   
-  return `${totalHours}${hourLabel} ${t('and')} ${remainingMinutes} ${t('min')}`;
+  return `${totalHours}${hStr} ${remainingMinutes}${minStr}`;
+}
+
+export function generateTicketId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const pick = (n: number) => Array.from({length: n}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+  return `${pick(2)}-${pick(1)}-${pick(1)}`;
 }
 
 export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -48,13 +56,13 @@ export function formatDistance(km: number) {
   return `${km.toFixed(1)}km`;
 }
 
-// Generates the next 30 days starting from tomorrow
+// Generates the next 60 days starting from tomorrow
 export function generateAvailabilityDates(): Date[] {
   const dates: Date[] = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  for (let i = 1; i <= 30; i++) {
+  for (let i = 1; i <= 60; i++) {
     const nextDate = new Date(today);
     nextDate.setDate(today.getDate() + i);
     dates.push(nextDate);

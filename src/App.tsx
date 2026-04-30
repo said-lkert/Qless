@@ -3,6 +3,7 @@ import { MapView } from './components/MapView';
 import { SearchHeader } from './components/SearchHeader';
 import { BottomNav } from './components/BottomNav';
 import { DetailsSheet } from './components/DetailsSheet';
+import { TicketDetailSheet } from './components/TicketDetailSheet';
 import { TicketList } from './components/TicketList';
 import { AccountCenter } from './components/AccountCenter';
 import { ListView } from './components/ListView';
@@ -12,13 +13,14 @@ import { Institution, Ticket, INSTITUTION_TYPES, WILAYAS, WILAYA_COMMUNES, SECTO
 import { useLanguage } from './hooks/useLanguage';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Search, ChevronDown, MapPin, Navigation, Clock } from 'lucide-react';
-import { cn, calculateDistance, formatDistance, calculateEstimatedWaitTime } from './lib/utils';
+import { cn, calculateDistance, formatDistance, calculateEstimatedWaitTime, generateTicketId } from './lib/utils';
 
 export default function App() {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'explore' | 'reservations' | 'account'>('explore');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [institutions, setInstitutions] = useState<Institution[]>(mockInstitutions);
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -29,8 +31,8 @@ export default function App() {
     {
       id: '1',
       userId: 'mock',
-      title: 'Rappel de réservation',
-      message: 'Votre réservation chez Dr. Lilia B. est dans 2 jours.',
+      title: t('reservationReminder' as any),
+      message: t('reservationReminderMsg' as any).replace('{name}', 'Dr. Lilia B.').replace('{days}', '2'),
       timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
       read: false,
       archived: false,
@@ -39,8 +41,8 @@ export default function App() {
     {
       id: '2',
       userId: 'mock',
-      title: 'Confirmation de ticket',
-      message: 'Votre ticket #21 pour Hôpital Central a été confirmé.',
+      title: t('ticketConfirmation' as any),
+      message: t('ticketConfirmationMsg' as any).replace('{num}', '21').replace('{inst}', 'Hôpital Central'),
       timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
       read: true,
       archived: false,
@@ -58,8 +60,9 @@ export default function App() {
   const [mapZoom, setMapZoom] = useState(13);
 
   // Toast state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info'; ticketId?: string; title?: string } | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [triggeredNotifications, setTriggeredNotifications] = useState<string[]>([]);
 
   // Filter states
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -123,15 +126,91 @@ export default function App() {
     }
   }, [isWilayaDropdownOpen, isCommuneDropdownOpen]);
   
-  // Ticket increments make no sense for future date calendars, so removing them.
+  // Live queue simulator
+  React.useEffect(() => {
+    // Simulate lastTicket increment every 4s
+    const lastTicketInterval = setInterval(() => {
+      setInstitutions(prev => prev.map(inst => {
+        const typeInfo = INSTITUTION_TYPES.find(ti => ti.type === inst.type);
+        const isBooking = (['HEALTHCARE', 'SERVICES', 'TECHNOLOGY'].includes(typeInfo?.sector || ''));
+        
+        // Randomly give out new tickets
+        if (Math.random() > 0.5) {
+          // Booking sectors increase lastGivenTicket slower
+          if (isBooking && Math.random() > 0.7) {
+             return { ...inst, lastGivenTicket: Math.min(50, inst.lastGivenTicket + 1) };
+          } else if (!isBooking) {
+             return { ...inst, lastGivenTicket: inst.lastGivenTicket + 1 };
+          }
+        }
+        return inst;
+      }));
+    }, 4000);
+
+    // Simulate currentTicket increment (processing) every 10s
+    const currentTicketInterval = setInterval(() => {
+      setInstitutions(prev => prev.map(inst => {
+        if (inst.currentTicket < inst.lastGivenTicket && Math.random() > 0.4) {
+          return { ...inst, currentTicket: inst.currentTicket + 1 };
+        }
+        return inst;
+      }));
+    }, 10000);
+
+    return () => {
+      clearInterval(lastTicketInterval);
+      clearInterval(currentTicketInterval);
+    };
+  }, []); // Run always
+
+  // Effect to handle "Near Turn" notifications (less than 15 people)
+  React.useEffect(() => {
+    tickets.forEach(ticket => {
+      const inst = institutions.find(i => i.id === ticket.institutionId);
+      if (!inst) return;
+      
+      const typeInfo = INSTITUTION_TYPES.find(ti => ti.type === inst.type);
+      const isLiveTicket = !(['HEALTHCARE', 'SERVICES', 'TECHNOLOGY'].includes(typeInfo?.sector || ''));
+      if (!isLiveTicket) return;
+
+      const peopleAhead = parseInt(ticket.ticketNumber) - inst.currentTicket;
+      const notificationKey = `${ticket.id}-near-turn`;
+
+      // Trigger if exactly 15 or less than 15 (one-time trigger per threshold)
+      if (peopleAhead > 0 && peopleAhead < 15 && !triggeredNotifications.includes(notificationKey)) {
+        // Trigger notification
+        const newNotif = {
+          id: generateTicketId(),
+          userId: 'mock',
+          title: inst.name,
+          message: `Votre tour est proche ! Il y a moins de 15 personnes avant vous.`,
+          timestamp: Date.now(),
+          read: false,
+          archived: false,
+          type: 'REMINDER',
+          ticketId: ticket.id // Link to open the ticket
+        };
+        
+        setNotifications(prev => [newNotif, ...prev]);
+        setTriggeredNotifications(prev => [...prev, notificationKey]);
+        setToast({ 
+          title: newNotif.title,
+          message: newNotif.message, 
+          type: 'info',
+          ticketId: ticket.id
+        });
+      }
+    });
+  }, [tickets, institutions, triggeredNotifications]);
 
   const filteredInstitutions = useMemo(() => {
     return institutions.filter(inst => {
-      const typeLabel = t(inst.type as any).toLowerCase();
-      const matchesSearch = inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          typeLabel.includes(searchQuery.toLowerCase()) ||
-                          inst.wilaya.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          inst.commune.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!inst) return false;
+      const typeLabel = (t(inst.type as any) || '').toLowerCase();
+      const matchesSearch = (inst.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          typeLabel.includes((searchQuery || '').toLowerCase()) ||
+                          (inst.wilaya || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (inst.commune || '').toLowerCase().includes((searchQuery || '').toLowerCase());
       
       const typeInfo = INSTITUTION_TYPES.find(it => it.type === inst.type);
       const matchesSector = selectedSectors.length === 0 || (typeInfo && selectedSectors.includes(typeInfo.sector));
@@ -172,6 +251,24 @@ export default function App() {
     setTimeout(() => setToast(null), 3000);
   }, [t]);
 
+  const handleDeleteTicket = React.useCallback((ticketId: string, silent = false) => {
+    const ticketToDelete = tickets.find(t => t.id === ticketId);
+    setTickets(prev => prev.filter(t => t.id !== ticketId));
+    if (selectedTicket?.id === ticketId) {
+      setSelectedTicket(null);
+    }
+    if (!silent) {
+      setToast({ 
+        title: ticketToDelete?.institutionName,
+        message: `Réservation supprimée : ${ticketToDelete?.institutionName || 'Ticket'}`, 
+        type: 'success' 
+      });
+      setTimeout(() => setToast(null), 3000);
+    } else {
+      setToast(null);
+    }
+  }, [tickets, selectedTicket?.id]);
+
   const handleLogout = React.useCallback(() => {
     setUser(null);
     setShouldShowSplash(false);
@@ -193,20 +290,11 @@ export default function App() {
       return; // Already booked this day
     }
 
-    const generateReservationId = () => {
-      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const numbers = '0123456789';
-      const all = letters + numbers;
-      const pick = (source: string) => source.charAt(Math.floor(Math.random() * source.length));
-      // Force at least one letter and one number to ensure a mix, format: XXX-X-X
-      return `${pick(letters)}${pick(numbers)}${pick(all)}-${pick(all)}-${pick(all)}`;
-    };
-
     const position = (inst as any)._queuePosition || 1;
     const estimatedTimeMin = calculateEstimatedWaitTime(targetDate, position);
 
     const newTicket: Ticket = {
-      id: generateReservationId(),
+      id: generateTicketId(),
       institutionId: inst.id,
       institutionName: inst.name,
       ticketNumber: position.toString(),
@@ -221,10 +309,6 @@ export default function App() {
     
     setSelectedInstitution(null);
     setActiveTab('reservations');
-  };
-
-  const handleDeleteTicket = (ticketId: string) => {
-    setTickets(tickets.filter(t => t.id !== ticketId));
   };
 
   const toggleSave = (id: string) => {
@@ -329,10 +413,7 @@ export default function App() {
                 institutions={institutions}
                 onDeleteTicket={handleDeleteTicket}
                 onSelectTicket={(ticket) => {
-                  const inst = institutions.find(i => i.id === ticket.institutionId);
-                  if (inst) {
-                    setSelectedInstitution(inst);
-                  }
+                  setSelectedTicket(ticket);
                 }}
               />
             </motion.div>
@@ -360,6 +441,15 @@ export default function App() {
                 toggleDarkMode={() => setIsDarkMode(!isDarkMode)}
                 notifications={notifications}
                 setNotifications={setNotifications}
+                onNotificationClick={(notif) => {
+                  if (notif.ticketId) {
+                    const ticket = tickets.find(t => t.id === notif.ticketId);
+                    if (ticket) {
+                      setSelectedTicket(ticket);
+                      setActiveTab('reservations');
+                    }
+                  }
+                }}
               />
             </motion.div>
           )}
@@ -374,6 +464,21 @@ export default function App() {
         userTickets={userTicketsForSelected}
         isSaved={selectedInstitution ? savedInstitutions.includes(selectedInstitution.id) : false}
         onToggleSave={toggleSave}
+      />
+
+      <TicketDetailSheet 
+        ticket={selectedTicket}
+        institution={selectedTicket ? institutions.find(i => i.id === selectedTicket.institutionId) || null : null}
+        onClose={() => setSelectedTicket(null)}
+        onDeleteTicket={handleDeleteTicket}
+        onPostpone={(inst) => {
+          if (selectedTicket) {
+            handleDeleteTicket(selectedTicket.id, true);
+          }
+          setSelectedInstitution(inst);
+          setActiveTab('explore');
+          setSelectedTicket(null);
+        }}
       />
 
       {/* Filter Modal */}
@@ -696,86 +801,80 @@ export default function App() {
 
       {/* Bottom Navigation */}
       {/* Toast Notification */}
+      {/* Top Notification (Urgent/Ticket alerts) */}
       <AnimatePresence>
-        {toast && (
+        {toast && (toast.ticketId || toast.title) && (
+          <motion.div
+            initial={{ opacity: 0, y: -100, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed top-6 left-4 right-4 z-[6000] max-w-md mx-auto"
+          >
+            <div 
+              onClick={() => {
+                if (toast.ticketId) {
+                  const ticket = tickets.find(t => t.id === toast.ticketId);
+                  if (ticket) {
+                    setSelectedTicket(ticket);
+                    setActiveTab('reservations');
+                  }
+                }
+                setToast(null);
+              }}
+              className="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl rounded-[2rem] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white dark:border-white/10 flex items-center gap-4 cursor-pointer active:scale-95 transition-all group"
+            >
+              <div className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg relative",
+                toast.type === 'success' ? "bg-green-500 text-white" : "bg-blue-600 text-white"
+              )}>
+                {toast.type === 'success' ? (
+                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                ) : (
+                  <Clock className="w-6 h-6 animate-pulse" />
+                )}
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                {toast.title && (
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 leading-none mb-1">
+                    {toast.title}
+                  </p>
+                )}
+                <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">
+                  {toast.message}
+                </p>
+              </div>
+
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setToast(null);
+                }}
+                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom Toast (Success/Info messages) */}
+      <AnimatePresence>
+        {toast && !(toast.ticketId || toast.title) && (
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.8 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[6000] px-6 py-3 bg-gray-900/90 dark:bg-white/90 backdrop-blur-xl text-white dark:text-gray-900 rounded-2xl shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3"
+            className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[6000] px-6 py-3 bg-gray-900/90 dark:bg-white/90 backdrop-blur-xl text-white dark:text-gray-900 rounded-2xl shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 whitespace-nowrap"
           >
             <div className={cn(
               "w-2 h-2 rounded-full animate-pulse",
               toast.type === 'success' ? "bg-green-500" : "bg-blue-500"
             )} />
             <span className="text-sm font-bold">{toast.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Smart Alert */}
-      <AnimatePresence>
-        {smartAlert && (
-          <motion.div 
-            initial={{ y: -60, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -40, opacity: 0, scale: 0.9, transition: { duration: 0.2, ease: "easeInOut" } }}
-            transition={{ type: "spring", stiffness: 450, damping: 25 }}
-            className="fixed top-24 left-4 right-4 z-[2500]"
-          >
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl p-5 shadow-2xl border border-blue-500/30 shadow-blue-500/10 overflow-hidden relative">
-              <button 
-                onClick={() => setDismissedAlertId(smartAlert.ticket.id)}
-                className="absolute top-4 right-4 p-2 bg-gray-100/50 dark:bg-gray-800/50 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors z-20"
-              >
-                <X className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-              </button>
-
-              <div className="flex flex-col gap-4 relative z-10">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/30">
-                    <Navigation className="w-6 h-6 text-white animate-pulse" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-1">
-                      <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">{t('smartAlert')}</span>
-                    </div>
-                    <h4 className="text-lg font-black text-gray-900 dark:text-white leading-tight mb-1">
-                      {t('leaveNow')}
-                    </h4>
-                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 leading-tight">
-                      {parseInt(smartAlert.ticket.ticketNumber) - smartAlert.institution.currentTicket} {t('peopleAhead')} {t('at')} {smartAlert.institution.name}.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  {userLocation && (
-                    <>
-                      <div className="flex-1 px-3 py-2.5 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center gap-2 border border-gray-100 dark:border-white/5">
-                        <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{formatDistance(smartAlert.distance)}</span>
-                      </div>
-                      <div className="flex-1 px-3 py-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center gap-2 border border-blue-100 dark:border-blue-900/30">
-                        <Clock className="w-3.5 h-3.5 text-blue-500" />
-                        <span className="text-xs font-black text-blue-600 dark:text-blue-400">~{smartAlert.travelTime} {t('min')}</span>
-                      </div>
-                    </>
-                  )}
-                  <button 
-                    onClick={() => {
-                      const url = `https://www.google.com/maps/dir/?api=1&destination=${smartAlert.institution.lat},${smartAlert.institution.lng}`;
-                      window.open(url, '_blank');
-                    }}
-                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2 whitespace-nowrap active:scale-95"
-                  >
-                    <Navigation className="w-3.5 h-3.5 fill-current" />
-                    {t('itinerary' as any)}
-                  </button>
-                </div>
-              </div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

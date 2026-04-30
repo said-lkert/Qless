@@ -9,7 +9,7 @@ interface TicketListProps {
   tickets: Ticket[];
   institutions: Institution[];
   onSelectTicket: (ticket: Ticket) => void;
-  onDeleteTicket?: (ticketId: string) => void;
+  onDeleteTicket?: (ticketId: string, silent?: boolean) => void;
 }
 
 export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, onSelectTicket, onDeleteTicket }) => {
@@ -19,7 +19,7 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
     <div className="p-6 pb-40 space-y-4">
       <div className="mb-8">
         <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{t('tickets')}</h2>
-        <p className="text-gray-500 dark:text-gray-400 font-bold text-sm mt-1">Gérez vos rendez-vous et votre temps</p>
+        <p className="text-gray-500 dark:text-gray-400 font-bold text-sm mt-1">{t('subtitle' as any)}</p>
       </div>
       
       {tickets.length === 0 ? (
@@ -34,6 +34,7 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
           const inst = institutions.find(i => i.id === ticket.institutionId);
           const typeInfo = INSTITUTION_TYPES.find(ti => ti.type === inst?.type);
           const Icon = typeInfo?.icon || Clock;
+          const isLiveTicket = !(['HEALTHCARE', 'SERVICES', 'TECHNOLOGY'].includes(typeInfo?.sector || ''));
           
           const todayDate = new Date();
           todayDate.setHours(0,0,0,0);
@@ -42,8 +43,8 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
           ticketDate.setHours(0,0,0,0);
 
           const userTicketNum = parseInt(ticket.ticketNumber);
-          const wait = Math.max(0, userTicketNum - 1);
-          const estimatedTime = ticket.estimatedTime;
+          const wait = Math.max(0, userTicketNum - (inst?.currentTicket || 0));
+          const estimatedTime = wait * 4;
           
           let status: 'waiting' | 'completed' | 'expired' = 'waiting';
           
@@ -52,8 +53,11 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
 
           if (isPast) {
             status = 'expired';
-          } 
-          // If it's today, we can pretend the queue is progressing, but since we disabled live increments, let's just keep it waiting unless it's specifically marked completed.
+          } else if (isToday && isLiveTicket && userTicketNum < (inst?.currentTicket || 0)) {
+            status = 'expired';
+          }
+          
+          const canDelete = status === 'expired' || true;
           
           const formattedDate = ticketDate.toLocaleDateString('fr-FR', {
             day: 'numeric',
@@ -72,8 +76,25 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
                   onSelectTicket(ticket);
                 }
               }}
-              className="w-full bg-white dark:bg-gray-800 rounded-[2rem] p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-left group active:scale-[0.98] focus:outline-none cursor-pointer"
+              className="w-full bg-white dark:bg-gray-800 rounded-[2rem] p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-left group active:scale-[0.98] focus:outline-none cursor-pointer relative overflow-hidden"
             >
+              {/* Delete Button (X) - Only works when expired */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (status === 'expired') {
+                    onDeleteTicket?.(ticket.id, true);
+                  }
+                }}
+                className={cn(
+                  "absolute top-4 right-4 p-2 rounded-xl transition-all z-20",
+                  status === 'expired' 
+                    ? "bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 active:scale-90" 
+                    : "bg-gray-50 dark:bg-gray-700/50 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                )}
+              >
+                <X className="w-4 h-4" />
+              </button>
               <div 
                 className={cn(
                   "w-20 h-20 rounded-[1.5rem] flex flex-col items-center justify-center text-white relative shadow-xl transition-opacity",
@@ -103,21 +124,21 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
                   
                   {status !== 'expired' ? (
                     <>
-                      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span className="text-xs font-bold">{formatWaitTime(estimatedTime, t)}</span>
-                      </div>
-                      {status === 'waiting' && (
-                        <div className={cn(
-                          "flex items-center gap-2",
-                          wait > 20 ? "text-orange-500" : "text-green-500"
-                        )}>
-                          <Users className="w-3.5 h-3.5" />
-                          <span className="text-xs font-black uppercase tracking-wider">
-                            {wait > 0 ? `${wait} ${t('beforeYou')}` : t('yourTurn')}
-                          </span>
+                      {isLiveTicket && (
+                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span className="text-xs font-bold">{formatWaitTime(estimatedTime, t)} d'attente</span>
                         </div>
                       )}
+                      <div className={cn(
+                        "flex items-center gap-2",
+                        wait > 25 ? "text-red-500" : wait > 10 ? "text-orange-500" : "text-green-500"
+                      )}>
+                        {isLiveTicket ? <Users className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                        <span className="text-xs font-black uppercase tracking-wider">
+                          {isLiveTicket ? (wait > 0 ? `${wait} ${t('beforeYou')}` : t('yourTurn')) : 'Réservation Active'}
+                        </span>
+                      </div>
                     </>
                   ) : (
                     <div className="flex items-center gap-2 text-gray-400 dark:text-gray-600">
@@ -129,26 +150,15 @@ export const TicketList: React.FC<TicketListProps> = ({ tickets, institutions, o
                 <div className="mt-3 flex items-center gap-2">
                    <span className={cn(
                     "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                    status === 'waiting' && "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+                    status === 'waiting' && (isLiveTicket ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"),
                     status === 'expired' && "bg-red-50 text-red-400 dark:bg-red-900/20 dark:text-red-500/80"
                   )}>
-                    {t(status as any)}
+                    {isLiveTicket ? t(status as any) : 'Réserve'}
                   </span>
                 </div>
               </div>
               
               <div className="flex flex-col gap-2">
-                {status === 'expired' && (
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteTicket?.(ticket.id);
-                    }}
-                    className="p-2 bg-red-100 dark:bg-red-900/40 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 transition-all border border-red-200 dark:border-red-800/50 shadow-sm flex items-center justify-center hover:scale-105 active:scale-95"
-                  >
-                    <X className="w-4 h-4" strokeWidth={3} />
-                  </button>
-                )}
                 <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-xl group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 transition-colors">
                   <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
                 </div>

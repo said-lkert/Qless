@@ -4,39 +4,19 @@ import {
   Coins, FileText, Users, MapPin, Zap, Droplets, Waves, Wifi, Smartphone, Signal,
   Microscope, Library, Receipt, HardDrive, Filter, ShoppingBag, Truck, Factory,
   Cpu, GraduationCap, Utensils, Hammer, Home, Construction, Globe, Microscope as Biotech,
-  Shovel, Tractor, Shirt, Car
+  Shovel, Tractor, Shirt, Car, Sparkles, FlaskConical, Syringe, Plus
 } from 'lucide-react';
 
 export type Sector = 
   | 'HEALTHCARE'
-  | 'FINANCE'
-  | 'TRADE'
-  | 'SERVICES'
-  | 'AGRICULTURE'
-  | 'MANUFACTURING'
-  | 'TECHNOLOGY'
-  | 'CONSTRUCTION'
-  | 'EDUCATION';
+  | 'FINANCE';
 
 export type InstitutionType = 
   // Healthcare
-  | 'CARDIOLOGIST' | 'PULMONOLOGIST' | 'GASTROENTEROLOGIST' | 'NEPHROLOGIST' | 'NEUROLOGIST' | 'ENDOCRINOLOGIST' | 'ORL' | 'OPHTHALMOLOGIST' | 'GENERALIST' | 'CLINIQUE' | 'HOPITAL_PRIVE' | 'PHARMACY'
+  | 'CARDIOLOGIST' | 'PULMONOLOGIST' | 'GASTROENTEROLOGIST' | 'NEPHROLOGIST' | 'NEUROLOGIST' | 'ENDOCRINOLOGIST' | 'ORL' | 'OPHTHALMOLOGIST' | 'GENERALIST' | 'CLINIQUE' | 'HOPITAL_PRIVE' | 'PHARMACY' | 'DENTIST' | 'LABORATORY'
+  | 'HEMATOLOGIST' | 'INFECTIOLOGIST' | 'RHEUMATOLOGIST' | 'PSYCHIATRIST' | 'DERMATOLOGIST' | 'ALLERGIST' | 'INTERNAL_MEDICINE' | 'GERIATRICIAN' | 'SPORTS_MEDICINE' | 'ONCOLOGIST' | 'NUCLEAR_MEDICINE' | 'MEDICAL_GENETICS' | 'TOXICOLOGIST' | 'NEUROSURGEON' | 'ORTHOPEDIC_SURGEON' | 'PLASTIC_SURGEON' | 'UROLOGIST' | 'PEDIATRICIAN' | 'GYNECOLOGIST' | 'OBSTETRICIAN' | 'NEONATOLOGUE' | 'RADIOLOGIST' | 'PATHOLOGIST' | 'MEDICAL_BIOLOGIST' | 'EMERGENCY_MEDICINE' | 'INTENSIVE_CARE' | 'ORTHODONTIST'
   // Finance
-  | 'BANQUE_PRIVEE' | 'ASSURANCE' | 'INVESTMENT'
-  // Trade
-  | 'SHOP' | 'WHOLESALER' | 'IMPORT_EXPORT'
-  // Services
-  | 'CONSULTING' | 'TOURISM' | 'TRANSPORT' | 'CLEANING' | 'PERSONAL_SERVICE'
-  // Agriculture
-  | 'FARM' | 'FOOD_PRODUCTION' | 'AGRI_EXPORT'
-  // Manufacturing
-  | 'FACTORY' | 'TEXTILE' | 'ELECTRONICS' | 'CAR_MANUF' | 'CONST_MATERIALS'
-  // Technology
-  | 'SOFTWARE' | 'STARTUP' | 'CYBERSECURITY' | 'TELECOM' | 'DIGITAL_SERVICE'
-  // Construction
-  | 'BUILDING_CO' | 'DEVELOPER' | 'REAL_ESTATE'
-  // Education
-  | 'SCHOOL' | 'UNIVERSITY' | 'TRAINING_CENTER' | 'ONLINE_EDU';
+  | 'BANQUE_PRIVEE' | 'ASSURANCE' | 'INVESTMENT';
 
 export interface Institution {
   id: string;
@@ -213,17 +193,11 @@ export const WILAYA_COORDS: Record<string, { lat: number, lng: number }> = {
 export const SECTORS: { id: Sector; label: string; icon: any; color: string }[] = [
   { id: 'HEALTHCARE', label: 'Healthcare (Private)', icon: Heart, color: '#ef4444' },
   { id: 'FINANCE', label: 'Finance & Banking', icon: Landmark, color: '#0f766e' },
-  { id: 'TRADE', label: 'Trade (Commerce)', icon: Receipt, color: '#f59e0b' },
-  { id: 'SERVICES', label: 'Services', icon: Users, color: '#6366f1' },
-  { id: 'AGRICULTURE', label: 'Agriculture & Agribusiness', icon: Tractor, color: '#10b981' },
-  { id: 'MANUFACTURING', label: 'Manufacturing & Industry', icon: Factory, color: '#4b5563' },
-  { id: 'TECHNOLOGY', label: 'Technology & IT', icon: Cpu, color: '#3b82f6' },
-  { id: 'CONSTRUCTION', label: 'Construction & Real Estate', icon: Construction, color: '#8b5cf6' },
-  { id: 'EDUCATION', label: 'Education (Private)', icon: Library, color: '#ec4899' },
 ];
 
 export const INSTITUTION_TYPES: { type: InstitutionType; sector: Sector; color: string; icon: any }[] = [
   // Healthcare
+  { type: 'GENERALIST', sector: 'HEALTHCARE', color: '#10b981', icon: Stethoscope },
   { type: 'CARDIOLOGIST', sector: 'HEALTHCARE', color: '#ef4444', icon: Heart },
   { type: 'PULMONOLOGIST', sector: 'HEALTHCARE', color: '#06b6d4', icon: Wind },
   { type: 'GASTROENTEROLOGIST', sector: 'HEALTHCARE', color: '#f97316', icon: Microscope },
@@ -232,55 +206,43 @@ export const INSTITUTION_TYPES: { type: InstitutionType; sector: Sector; color: 
   { type: 'ENDOCRINOLOGIST', sector: 'HEALTHCARE', color: '#ec4899', icon: Thermometer },
   { type: 'ORL', sector: 'HEALTHCARE', color: '#14b8a6', icon: Signal },
   { type: 'OPHTHALMOLOGIST', sector: 'HEALTHCARE', color: '#3b82f6', icon: Eye },
-  { type: 'GENERALIST', sector: 'HEALTHCARE', color: '#10b981', icon: Baby },
   { type: 'CLINIQUE', sector: 'HEALTHCARE', color: '#2dd4bf', icon: Building2 },
   { type: 'HOPITAL_PRIVE', sector: 'HEALTHCARE', color: '#0f172a', icon: Landmark },
   { type: 'PHARMACY', sector: 'HEALTHCARE', color: '#10b981', icon: Droplets },
+  { type: 'DENTIST', sector: 'HEALTHCARE', color: '#38bdf8', icon: Activity },
+  { type: 'LABORATORY', sector: 'HEALTHCARE', color: '#a855f7', icon: Biotech },
+  
+  // New specialties
+  { type: 'HEMATOLOGIST', sector: 'HEALTHCARE', color: '#b91c1c', icon: Droplets },
+  { type: 'INFECTIOLOGIST', sector: 'HEALTHCARE', color: '#047857', icon: ShieldCheck },
+  { type: 'RHEUMATOLOGIST', sector: 'HEALTHCARE', color: '#4338ca', icon: Activity },
+  { type: 'PSYCHIATRIST', sector: 'HEALTHCARE', color: '#7e22ce', icon: Brain },
+  { type: 'DERMATOLOGIST', sector: 'HEALTHCARE', color: '#db2777', icon: Sparkles },
+  { type: 'ALLERGIST', sector: 'HEALTHCARE', color: '#0891b2', icon: Wind },
+  { type: 'INTERNAL_MEDICINE', sector: 'HEALTHCARE', color: '#4b5563', icon: Stethoscope },
+  { type: 'GERIATRICIAN', sector: 'HEALTHCARE', color: '#d97706', icon: Users },
+  { type: 'SPORTS_MEDICINE', sector: 'HEALTHCARE', color: '#2563eb', icon: Activity },
+  { type: 'ONCOLOGIST', sector: 'HEALTHCARE', color: '#7c3aed', icon: Microscope },
+  { type: 'NUCLEAR_MEDICINE', sector: 'HEALTHCARE', color: '#ea580c', icon: Zap },
+  { type: 'MEDICAL_GENETICS', sector: 'HEALTHCARE', color: '#16a34a', icon: Microscope },
+  { type: 'TOXICOLOGIST', sector: 'HEALTHCARE', color: '#4f46e5', icon: FlaskConical },
+  { type: 'NEUROSURGEON', sector: 'HEALTHCARE', color: '#c026d3', icon: Brain },
+  { type: 'ORTHOPEDIC_SURGEON', sector: 'HEALTHCARE', color: '#854d0e', icon: Activity },
+  { type: 'PLASTIC_SURGEON', sector: 'HEALTHCARE', color: '#be185d', icon: Sparkles },
+  { type: 'UROLOGIST', sector: 'HEALTHCARE', color: '#1e40af', icon: Activity },
+  { type: 'PEDIATRICIAN', sector: 'HEALTHCARE', color: '#fb923c', icon: Baby },
+  { type: 'GYNECOLOGIST', sector: 'HEALTHCARE', color: '#f472b6', icon: Users },
+  { type: 'OBSTETRICIAN', sector: 'HEALTHCARE', color: '#e879f9', icon: Baby },
+  { type: 'NEONATOLOGUE', sector: 'HEALTHCARE', color: '#a5b4fc', icon: Baby },
+  { type: 'RADIOLOGIST', sector: 'HEALTHCARE', color: '#374151', icon: HardDrive },
+  { type: 'PATHOLOGIST', sector: 'HEALTHCARE', color: '#15803d', icon: Microscope },
+  { type: 'MEDICAL_BIOLOGIST', sector: 'HEALTHCARE', color: '#0369a1', icon: Microscope },
+  { type: 'EMERGENCY_MEDICINE', sector: 'HEALTHCARE', color: '#dc2626', icon: Zap },
+  { type: 'INTENSIVE_CARE', sector: 'HEALTHCARE', color: '#111827', icon: Activity },
+  { type: 'ORTHODONTIST', sector: 'HEALTHCARE', color: '#0ea5e9', icon: Activity },
 
   // Finance
   { type: 'BANQUE_PRIVEE', sector: 'FINANCE', color: '#0f766e', icon: Wallet },
   { type: 'ASSURANCE', sector: 'FINANCE', color: '#1d4ed8', icon: ShieldCheck },
   { type: 'INVESTMENT', sector: 'FINANCE', color: '#059669', icon: Coins },
-
-  // Trade
-  { type: 'SHOP', sector: 'TRADE', color: '#f59e0b', icon: ShoppingBag },
-  { type: 'WHOLESALER', sector: 'TRADE', color: '#d97706', icon: Truck },
-  { type: 'IMPORT_EXPORT', sector: 'TRADE', color: '#b45309', icon: Globe },
-
-  // Services
-  { type: 'CONSULTING', sector: 'SERVICES', color: '#7c3aed', icon: FileText },
-  { type: 'TOURISM', sector: 'SERVICES', color: '#fbbf24', icon: Waves },
-  { type: 'TRANSPORT', sector: 'SERVICES', color: '#4b5563', icon: Truck },
-  { type: 'CLEANING', sector: 'SERVICES', color: '#60a5fa', icon: Droplets },
-  { type: 'PERSONAL_SERVICE', sector: 'SERVICES', color: '#f472b6', icon: Users },
-
-  // Agriculture
-  { type: 'FARM', sector: 'AGRICULTURE', color: '#059669', icon: Home },
-  { type: 'FOOD_PRODUCTION', sector: 'AGRICULTURE', color: '#10b981', icon: Utensils },
-  { type: 'AGRI_EXPORT', sector: 'AGRICULTURE', color: '#047857', icon: Globe },
-
-  // Manufacturing
-  { type: 'FACTORY', sector: 'MANUFACTURING', color: '#4b5563', icon: Factory },
-  { type: 'TEXTILE', sector: 'MANUFACTURING', color: '#6b7280', icon: Shirt },
-  { type: 'ELECTRONICS', sector: 'MANUFACTURING', color: '#3b82f6', icon: Cpu },
-  { type: 'CAR_MANUF', sector: 'MANUFACTURING', color: '#1e293b', icon: Car },
-  { type: 'CONST_MATERIALS', sector: 'MANUFACTURING', color: '#92400e', icon: Hammer },
-
-  // Technology
-  { type: 'SOFTWARE', sector: 'TECHNOLOGY', color: '#2563eb', icon: HardDrive },
-  { type: 'STARTUP', sector: 'TECHNOLOGY', color: '#8b5cf6', icon: Zap },
-  { type: 'CYBERSECURITY', sector: 'TECHNOLOGY', color: '#ef4444', icon: ShieldCheck },
-  { type: 'TELECOM', sector: 'TECHNOLOGY', color: '#10b981', icon: Signal },
-  { type: 'DIGITAL_SERVICE', sector: 'TECHNOLOGY', color: '#6366f1', icon: Smartphone },
-
-  // Construction
-  { type: 'BUILDING_CO', sector: 'CONSTRUCTION', color: '#444', icon: Building2 },
-  { type: 'DEVELOPER', sector: 'CONSTRUCTION', color: '#111', icon: Landmark },
-  { type: 'REAL_ESTATE', sector: 'CONSTRUCTION', color: '#2563eb', icon: Home },
-
-  // Education
-  { type: 'SCHOOL', sector: 'EDUCATION', color: '#8b5cf6', icon: GraduationCap },
-  { type: 'UNIVERSITY', sector: 'EDUCATION', color: '#7c3aed', icon: Library },
-  { type: 'TRAINING_CENTER', sector: 'EDUCATION', color: '#4f46e5', icon: FileText },
-  { type: 'ONLINE_EDU', sector: 'EDUCATION', color: '#3b82f6', icon: Globe },
 ];

@@ -4,9 +4,9 @@
 
 # Qless
 
-This contains everything you need to run your app locally.
+This repository contains the Qless app and is ready to be deployed on Vercel.
 
-View your app in AI Studio: https://ai.studio/apps/ce6d4071-b715-449f-868c-8b71bbd6cc48
+View the original AI Studio app: https://ai.studio/apps/ce6d4071-b715-449f-868c-8b71bbd6cc48
 
 ## Run Locally
 

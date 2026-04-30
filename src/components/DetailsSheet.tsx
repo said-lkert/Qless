@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Navigation, Share2, Bookmark, Star, Clock, Users, Ticket as TicketIcon, Check, Image as ImageIcon, Calendar } from 'lucide-react';
+import { X, Navigation, Share2, Bookmark, Star, Clock, Users, Ticket as TicketIcon, Check, Image as ImageIcon, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Institution, INSTITUTION_TYPES, Ticket } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
 import { cn, formatWaitTime, generateAvailabilityDates, formatDateToYYYYMMDD, getDaysDifference, calculateEstimatedWaitTime } from '../lib/utils';
@@ -24,7 +24,7 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
   isSaved,
   onToggleSave
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [isCutting, setIsCutting] = useState(false);
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -53,24 +53,24 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
 
   const dates = useMemo(() => generateAvailabilityDates(), []);
 
+  // Quick string hash
+  const hashStr = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  };
+
   // Simulator for deterministic daily schedules based on date string and institution ID
   const dailySchedule = useMemo(() => {
     if (!institution) return { slots: [], isFull: false, count: 0 };
     
-    // Quick string hash
-    const hashStr = (str: string) => {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-      }
-      return Math.abs(hash);
-    };
-
     const hash = hashStr(selectedDateStr + institution.id);
     
     const daysDiff = getDaysDifference(selectedDateStr);
-    const baseFill = Math.max(0, 50 - (daysDiff * 2)); // Closer days are fuller
+    const baseFill = Math.max(5, Math.floor(48 - (daysDiff * 0.75))); // Closer days are fuller
     const randomVariance = (hash % 15) - 5; 
     const count = Math.min(50, Math.max(0, Math.floor(baseFill + randomVariance)));
     
@@ -171,9 +171,80 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
     }
   };
 
+  // Calendar logic
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  const calendarDays = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Get the day of week for the first day (0=Sun, 1=Mon, ..., 6=Sat)
+    // We want Mon=1, ..., Sun=7 (or 0)
+    let startDay = firstDay.getDay(); 
+    if (startDay === 0) startDay = 7; // Convert Sun to 7
+    
+    const days = [];
+    
+    // Padding from previous month
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startDay - 1; i > 0; i--) {
+      days.push({ 
+        date: new Date(year, month - 1, prevMonthLastDay - i + 1), 
+        currentMonth: false 
+      });
+    }
+    
+    // Current month days
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push({ 
+        date: new Date(year, month, i), 
+        currentMonth: true 
+      });
+    }
+    
+    // Next month padding
+    const remainingSlots = 42 - days.length;
+    for (let i = 1; i <= remainingSlots; i++) {
+      days.push({ 
+        date: new Date(year, month + 1, i), 
+        currentMonth: false 
+      });
+    }
+    
+    return days;
+  }, [currentMonth]);
+
+  const changeMonth = (offset: number) => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1));
+  };
+
+  const isFriday = (date: Date) => date.getDay() === 5;
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() && 
+           date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
+  };
+  const isTodayOrPast = (date: Date) => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return date <= today;
+  };
+
+  const isMoreThanTwoMonthsAway = (date: Date) => {
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 60);
+    return date > maxDate;
+  };
+
   if (!institution) return null;
 
   const typeInfo = INSTITUTION_TYPES.find(t => t.type === institution.type);
+  const isBookingSector = typeInfo && ['HEALTHCARE', 'SERVICES', 'TECHNOLOGY'].includes(typeInfo.sector);
+  const peopleAhead = institution.lastGivenTicket - institution.currentTicket;
+  const estimatedTime = peopleAhead * 4;
 
   return (
     <AnimatePresence>
@@ -185,7 +256,7 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[1050]"
+            className="fixed inset-0 bg-black/80 backdrop-blur-[8px] z-[1050]"
           />
           
           <motion.div
@@ -199,10 +270,10 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
               mass: 1,
               restDelta: 0.5
             }}
-            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-[2.5rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.3)] z-[1100] max-h-[90vh] overflow-y-auto pb-24 border-t border-white/20 dark:border-gray-800"
+            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black rounded-t-[2.5rem] shadow-[0_-20px_60px_rgba(0,0,0,0.8)] z-[1100] max-h-[96vh] overflow-y-auto pb-24 border-t border-white/10 dark:border-white/5"
           >
-            <div className="sticky top-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-10 py-3">
-              <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto" />
+            <div className="sticky top-0 left-0 right-0 bg-white/80 dark:bg-black/90 backdrop-blur-md z-10 py-3">
+              <div className="w-12 h-1.5 bg-gray-300 dark:bg-white/10 rounded-full mx-auto" />
             </div>
 
             {/* Photos Gallery */}
@@ -242,7 +313,18 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
             className="flex justify-between items-start mb-6"
           >
             <div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">{institution.name}</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">{institution.name}</h2>
+                {isFriday(new Date()) ? (
+                  <div className="bg-red-50/50 dark:bg-red-900/40 px-3 py-1.5 rounded-full mt-1 shrink-0">
+                    <span className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest">{t('closed' as any) || 'Fermé'}</span>
+                  </div>
+                ) : (
+                  <div className="bg-green-50/50 dark:bg-green-900/40 px-3 py-1.5 rounded-full mt-1 shrink-0">
+                    <span className="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-widest">{t('open' as any)}</span>
+                  </div>
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-2">
                 <div className="flex items-center gap-1 bg-yellow-400/10 dark:bg-yellow-400/5 px-2 py-0.5 rounded-lg">
                   <Star className="w-3.5 h-3.5 text-yellow-500 fill-current" />
@@ -307,275 +389,421 @@ export const DetailsSheet: React.FC<DetailsSheetProps> = ({
               </span>
             </button>
           </motion.div>
+        </div>
 
-            {/* Date Selection Horizontal Picker */}
-            <div className="px-6 mb-6">
-               <div className="flex justify-between items-end mb-4">
-                 <div>
-                   <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">{t('selectDate') || 'Choisir une date'}</h3>
-                 </div>
-                 <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
-                   <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                   <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{t('next30Days') || '30 proch. jours'}</span>
-                 </div>
-               </div>
-               
-               <div className="flex gap-3 overflow-x-auto no-scrollbar pb-3 -mx-2 px-2 snap-x">
-                 {dates.map((date, i) => {
-                   const dateStr = formatDateToYYYYMMDD(date);
-                   const isSelected = selectedDateStr === dateStr;
-                   
-                   // Very lightweight hash to show red dot on some days
-                   const dayHash = dailySchedule.count; // Wait, dailySchedule relies on selected date...
-                   // We need a stable hash for each date
-                   let hash = 0;
-                   const dStr = dateStr + institution.id;
-                   for (let j = 0; j < dStr.length; j++) {
-                     hash = ((hash << 5) - hash) + dStr.charCodeAt(j);
-                     hash |= 0;
-                   }
-                   hash = Math.abs(hash);
-                   const isThisDayFull = (hash % 55) >= 50;
-                   
-                   return (
-                     <button
-                       key={dateStr}
-                       onClick={() => {
-                         setSelectedDate(date);
-                         setSelectedDateStr(dateStr);
-                       }}
-                       className={cn(
-                         "flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all min-w-[70px] snap-start shrink-0 relative",
-                         isSelected 
-                           ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105" 
-                           : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-200 dark:hover:border-gray-600"
-                       )}
-                     >
-                       <span className={cn(
-                         "text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 opacity-80"
-                       )}>
-                         {date.toLocaleDateString('fr-FR', { weekday: 'short' })}
-                       </span>
-                       <span className={cn(
-                         "text-xl font-display font-black leading-none",
-                       )}>
-                         {date.getDate()}
-                       </span>
-                       <span className="text-[9px] font-bold mt-1 opacity-60">
-                         {date.toLocaleDateString('fr-FR', { month: 'short' })}
-                       </span>
-                       
-                       {isThisDayFull && (
-                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full" />
-                       )}
-                     </button>
-                   );
-                 })}
-               </div>
-            </div>
-
-            {/* Daily Schedule List */}
-            <div className="px-6 mb-8">
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">{t('schedule') || 'Planning du jour'}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-gray-500">{dailySchedule.count}/50</span>
-                    {dailySchedule.isFull && (
-                      <span className="text-[10px] bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">
-                        {t('full') || 'Complet'}
+            {/* Conditional Content based on Sector */}
+            {isBookingSector ? (
+              <div className="px-6">                  {/* Month Calendar UI */}
+                  <div className="bg-white dark:bg-[#1c1c1e] text-gray-900 dark:text-white rounded-[2rem] shadow-xl dark:shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden flex flex-col p-5 mx-2 mt-2 font-sans">
+                    {/* Month Picker Header */}
+                    <div className="flex justify-between items-center mb-6 relative">
+                      {/* Decorative top bar like the image */}
+                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-20 h-1.5 bg-indigo-500 rounded-b-xl opacity-80"></div>
+                      
+                      <button 
+                        onClick={() => changeMonth(-1)}
+                        className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 flex items-center justify-center transition-all active:scale-90 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <span className="text-lg font-medium tracking-wide">
+                        {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                       </span>
-                    )}
+                      <button 
+                        onClick={() => changeMonth(1)}
+                        className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 flex items-center justify-center transition-all active:scale-90 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Calendar Grid */}
+                    <div className="px-1 pb-1">
+                      <div className="grid grid-cols-7 gap-y-3 gap-x-2 mb-4">
+                        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day, idx) => (
+                          <div key={idx} className="text-center text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{day}</div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-y-3 gap-x-1">
+                        {calendarDays.map((day, i) => {
+                          const dateStr = formatDateToYYYYMMDD(day.date);
+                          const isSelected = selectedDateStr === dateStr;
+                          const hasUserReservation = userTickets.some(t => t.institutionId === institution.id && t.targetDate === dateStr);
+                          const disabled = !day.currentMonth || isTodayOrPast(day.date) || isMoreThanTwoMonthsAway(day.date);
+                          const friday = isFriday(day.date);
+                          const today = isToday(day.date);
+                          const isPast = isTodayOrPast(day.date) && !today;
+                          
+                          // Check if full (simulation)
+                          const hashForFull = hashStr(dateStr + institution.id);
+                          const daysDiffForFull = getDaysDifference(dateStr);
+                          const baseFillForFull = Math.max(5, Math.floor(48 - (daysDiffForFull * 0.75)));
+                          const randomVarianceForFull = (hashForFull % 15) - 5; 
+                          const simulatedCount = Math.min(50, Math.max(0, Math.floor(baseFillForFull + randomVarianceForFull)));
+                          
+                          const isDayFull = simulatedCount >= 50;
+                          
+                          return (
+                            <div key={i} className="relative flex flex-col items-center justify-start group h-10">
+                              <button
+                                disabled={disabled || friday || isDayFull || hasUserReservation}
+                                onClick={() => {
+                                  setSelectedDate(day.date);
+                                  setSelectedDateStr(dateStr);
+                                }}
+                                className={cn(
+                                  "w-9 h-9 rounded-full flex items-center justify-center text-[15px] font-medium transition-all relative z-10",
+                                  isSelected ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/40" : 
+                                  hasUserReservation ? "bg-purple-600 text-white shadow-md shadow-purple-500/40" :
+                                  today ? "ring-1 ring-gray-300 dark:ring-white/20 text-gray-900 dark:text-white/90 font-bold" :
+                                  isPast ? "text-gray-300 dark:text-gray-700 opacity-40 cursor-default" :
+                                  !day.currentMonth ? "text-gray-100 dark:text-gray-900 opacity-[0.05]" :
+                                  disabled && !hasUserReservation && !friday && !isDayFull ? "text-gray-400 dark:text-gray-600 opacity-40 cursor-not-allowed" :
+                                  (friday || isDayFull) ? "text-red-500 dark:text-red-400 opacity-90" :
+                                  "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 disabled:hover:bg-transparent"
+                                )}
+                              >
+                                {day.date.getDate()}
+                              </button>
+                              
+                              {/* Status Labels below the date */}
+                              {day.currentMonth && !isTodayOrPast(day.date) && (
+                                <div className="absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap z-20 pointer-events-none">
+                                  {hasUserReservation ? (
+                                    <span className="text-[9px] font-bold text-purple-600 dark:text-purple-400 tracking-tight uppercase">{t('reserved')}</span>
+                                  ) : friday ? (
+                                    <span className="text-[9px] font-bold text-red-500 tracking-tight uppercase">{t('closed')}</span>
+                                  ) : isDayFull ? (
+                                    <span className="text-[9px] font-bold text-red-500 tracking-tight uppercase">{t('full')}</span>
+                                  ) : null}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Planning Header */}
+                  <div className="px-6 pt-8 pb-2 flex justify-between items-center">
+                      <div className="flex flex-col">
+                        <h3 className="text-sm font-black dark:text-white uppercase tracking-widest opacity-40 mb-1">{t('schedule') || 'Planning du jour'}</h3>
+                        <span className="text-xs font-bold text-gray-500">{selectedDate.toLocaleDateString(lang === 'ar' ? 'ar-DZ' : (lang === 'en' ? 'en-US' : 'fr-FR'), { weekday: 'long', day: 'numeric', month: 'short' })}</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-full">
+                         <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{dailySchedule.count}/50 {t('occupied').toUpperCase()}</span>
+                      </div>
+                    </div>
+
+                    {/* Planning Content */}
+                    <div className="p-4 px-6 pb-8">
+                      <div className="space-y-2 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
+                        {dailySchedule.slots.map((slot) => {
+                          const isSelected = selectedSlot === slot.position;
+                          
+                          if (slot.isOccupied) {
+                            return (
+                              <div key={slot.position} className={cn(
+                                "flex items-center justify-between p-3 rounded-2xl border transition-all",
+                                slot.isUser 
+                                  ? "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" 
+                                  : "bg-gray-100 dark:bg-white/[0.03] border-transparent opacity-60"
+                              )}>
+                                <div className="flex items-center gap-3">
+                                  <div className={cn(
+                                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black",
+                                    slot.isUser ? "bg-purple-600 text-white" : "bg-gray-200 dark:bg-white/10 text-gray-500"
+                                  )}>
+                                    {slot.position}
+                                  </div>
+                                  <p className={cn("text-sm font-bold", slot.isUser ? "text-purple-700 dark:text-purple-300" : "text-gray-400 dark:text-gray-500")}>
+                                    {slot.isUser ? slot.name : (t('reserved') || 'Réservé')}
+                                  </p>
+                                </div>
+                                {!slot.isUser && (
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('occupied')}</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <button 
+                              key={slot.position} 
+                              onClick={() => setSelectedSlot(slot.position)}
+                              className={cn(
+                                "w-full flex items-center justify-between p-3 rounded-2xl border-2 transition-all active:scale-[0.98]",
+                                isSelected 
+                                  ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20" 
+                                  : "bg-white dark:bg-white/5 border-dashed border-gray-200 dark:border-white/10 hover:border-blue-400 dark:hover:border-blue-500"
+                              )}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={cn(
+                                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors",
+                                  isSelected ? "bg-white text-blue-600" : "bg-gray-100 dark:bg-white/10 text-gray-500"
+                                )}>
+                                  {slot.position}
+                                </div>
+                                <p className={cn("text-sm font-bold transition-colors", isSelected ? "text-white" : "text-gray-600 dark:text-gray-400")}>
+                                  {isSelected ? (t('selected') || 'Sélectionné') : (t('available') || 'Disponible')}
+                                </p>
+                              </div>
+                              {isSelected && (
+                                <div className="w-5 h-5 rounded-full bg-white text-blue-600 flex items-center justify-center">
+                                  <Check className="w-3 h-3" />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                </div>
+              ) : (
+              /* RESTORED Old System: Live Queue UI from Screenshot */
+              <div className="px-6 mb-8 space-y-4">
+                {/* Main Stats Cards */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/10 rounded-[2rem] p-6 border border-blue-100 dark:border-blue-800/50">
+                    <div className="flex items-center gap-2 mb-4">
+                      <TicketIcon className="w-5 h-5 text-blue-600" />
+                      <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest leading-none">{t('currentTicketInLine')}</span>
+                    </div>
+                    <div className="overflow-hidden h-14">
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.h4 
+                          key={institution.currentTicket}
+                          initial={{ y: 40, opacity: 0, filter: 'blur(10px)' }}
+                          animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                          exit={{ y: -40, opacity: 0, filter: 'blur(10px)' }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                          className="text-5xl font-black text-blue-700 dark:text-blue-400 leading-none"
+                        >
+                          {institution.currentTicket}
+                        </motion.h4>
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-white/[0.03] rounded-[2rem] p-6 border border-gray-100 dark:border-white/5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Users className="w-5 h-5 text-gray-500" />
+                      <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest leading-none">{t('nextTicket')}</span>
+                    </div>
+                    <div className="overflow-hidden h-14">
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.h4 
+                          key={institution.lastGivenTicket}
+                          initial={{ y: 40, opacity: 0, filter: 'blur(10px)' }}
+                          animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                          exit={{ y: -40, opacity: 0, filter: 'blur(10px)' }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                          className="text-5xl font-black text-gray-900 dark:text-white leading-none"
+                        >
+                          {institution.lastGivenTicket + 1}
+                        </motion.h4>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-2 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-                  {dailySchedule.slots.map((slot) => {
-                    const isSelected = selectedSlot === slot.position;
-                    
-                    if (slot.isOccupied) {
-                      return (
-                        <div key={slot.position} className={cn(
-                          "flex items-center justify-between p-3 rounded-2xl border transition-all",
-                          slot.isUser 
-                            ? "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" 
-                            : "bg-gray-50 dark:bg-gray-800/80 border-gray-100 dark:border-gray-800 opacity-60"
-                        )}>
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black",
-                              slot.isUser ? "bg-purple-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-500"
-                            )}>
-                              {slot.position}
-                            </div>
-                            <p className={cn("text-sm font-bold", slot.isUser ? "text-purple-700 dark:text-purple-300" : "text-gray-500 dark:text-gray-400 line-through decoration-gray-300 dark:decoration-gray-600")}>
-                              {slot.name}
-                            </p>
-                          </div>
-                          {!slot.isUser && (
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('reserved') || 'Réservé'}</span>
-                          )}
-                        </div>
-                      );
-                    }
+                {/* Additional Info Rows */}
+                <div className="space-y-3">
+                  <div className="bg-white dark:bg-white/5 p-4 py-5 rounded-[1.5rem] border border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "p-3 rounded-2xl",
+                        (institution.lastGivenTicket - institution.currentTicket) < 10 ? "bg-green-50 dark:bg-green-900/20 text-green-600" :
+                        (institution.lastGivenTicket - institution.currentTicket) < 25 ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600" :
+                        "bg-red-50 dark:bg-red-900/20 text-red-600"
+                      )}>
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-gray-900 dark:text-white">{t('saturation' as any)}</p>
+                        <p className="text-[11px] font-bold text-gray-400">
+                          {(institution.lastGivenTicket - institution.currentTicket) < 10 ? t('low' as any) :
+                           (institution.lastGivenTicket - institution.currentTicket) < 25 ? t('medium' as any) : t('high' as any)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={cn(
+                      "px-3 py-1.5 rounded-full",
+                      (institution.lastGivenTicket - institution.currentTicket) < 10 ? "bg-green-50 dark:bg-green-900/20 text-green-600" :
+                      (institution.lastGivenTicket - institution.currentTicket) < 25 ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600" :
+                      "bg-red-50 dark:bg-red-900/20 text-red-600"
+                    )}>
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.span 
+                          key={institution.lastGivenTicket - institution.currentTicket}
+                          initial={{ opacity: 0, x: 20, filter: 'blur(4px)' }}
+                          animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                          exit={{ opacity: 0, x: -20, filter: 'blur(4px)' }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          className="text-[11px] font-black uppercase inline-block whitespace-nowrap"
+                        >
+                          {institution.lastGivenTicket - institution.currentTicket} {t('ticketsCount' as any)}
+                        </motion.span>
+                      </AnimatePresence>
+                    </div>
+                  </div>
 
-                    return (
-                      <button 
-                        key={slot.position} 
-                        onClick={() => setSelectedSlot(slot.position)}
-                        className={cn(
-                          "w-full flex items-center justify-between p-3 rounded-2xl border-2 transition-all active:scale-[0.98]",
-                          isSelected 
-                            ? "bg-blue-50 dark:bg-blue-900/20 border-blue-600 dark:border-blue-500 shadow-md shadow-blue-500/10" 
-                            : "bg-white dark:bg-gray-800 border-dashed border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/10"
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors",
-                            isSelected ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-500"
-                          )}>
-                            {slot.position}
-                          </div>
-                          <p className={cn("text-sm font-bold transition-colors", isSelected ? "text-blue-700 dark:text-blue-300" : "text-gray-600 dark:text-gray-400")}>
-                            {isSelected ? (t('selected') || 'Sélectionné') : (t('available') || 'Disponible')}
-                          </p>
-                        </div>
-                        {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center">
-                            <Check className="w-3 h-3" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                  <div className="bg-white dark:bg-white/5 p-4 py-5 rounded-[1.5rem] border border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-600">
+                        <Clock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('estimatedTime' as any)}</p>
+                        <AnimatePresence mode="popLayout" initial={false}>
+                          <motion.p 
+                            key={estimatedTime}
+                            initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                            exit={{ opacity: 0, scale: 1.2, filter: 'blur(10px)' }}
+                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-0.5"
+                          >
+                            {formatWaitTime(estimatedTime, t)}
+                          </motion.p>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Localized Success Animation */}
+
+            {/* Sticky Take Ticket Button Container */}
             <AnimatePresence>
-              {isCutting && (
+              {selectedSlot !== null && !isCutting && !hasReservationOnSelectedDay && !dailySchedule.isFull && (
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 1.1, y: -20 }}
-                  className="absolute left-1/2 -translate-x-1/2 top-0 -translate-y-full mb-4 z-[1200]"
+                  initial={{ y: 100, scale: 0.8, opacity: 0 }}
+                  animate={{ y: 0, scale: 1, opacity: 1 }}
+                  exit={{ y: 100, scale: 0.8, opacity: 0 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  className="fixed bottom-8 left-0 right-0 px-8 z-[2300] pointer-events-none"
                 >
-                  <div className="bg-green-500 text-white px-4 py-2 rounded-2xl shadow-xl flex items-center gap-2 whitespace-nowrap">
-                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <TicketIcon className="w-3 h-3" />
-                      </motion.div>
-                    </div>
-                    <span className="text-xs font-bold uppercase tracking-wider">{t('ticketTaken')}</span>
+                  <div className="max-w-xs mx-auto pointer-events-auto">
+                    <button 
+                      onClick={handleTakeTicket}
+                      className="w-full py-3.5 relative overflow-hidden rounded-full font-black text-sm bg-blue-600 dark:bg-blue-500 text-white shadow-[0_20px_50px_rgba(37,99,235,0.4)] flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-all group overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                      <div className="flex items-center gap-2 relative z-10">
+                        <TicketIcon className="w-4 h-4" />
+                        <span className="uppercase tracking-[0.2em]">
+                          {t('confirmPlace' as any)} #{selectedSlot}
+                        </span>
+                      </div>
+                      <span className="text-[8px] font-black opacity-60 uppercase tracking-[0.2em] relative z-10">
+                        {selectedDate.toLocaleDateString(lang === 'ar' ? 'ar-DZ' : (lang === 'en' ? 'en-US' : 'fr-FR'), { day: 'numeric', month: 'short' })}
+                      </span>
+                    </button>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-          {(hasReservationOnSelectedDay || dailySchedule.isFull) && (
-            <div className="space-y-3 mb-8">
-              {hasReservationOnSelectedDay && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-100 dark:border-red-800/50 rounded-[2rem] flex flex-col items-center text-center gap-3"
-                >
-                  <div className="p-3 bg-red-100 dark:bg-red-900/40 rounded-2xl text-red-600 dark:text-red-400 mb-1">
-                    <X className="w-6 h-6" />
-                  </div>
-                  <p className="text-sm font-bold text-red-700 dark:text-red-400 leading-relaxed px-4">
-                    {t('ticketLimitReached') || 'Vous avez déjà une réservation pour ce jour dans cet établissement.'}
-                  </p>
-                </motion.div>
-              )}
-              {dailySchedule.isFull && !hasReservationOnSelectedDay && (
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex justify-between items-center p-5 bg-red-50 dark:bg-red-900/20 rounded-3xl border border-red-100 dark:border-red-800/50"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-2xl shadow-sm">
-                      <Users className="w-5 h-5" />
+            {/* Success Animation & Limits */}
+            <div className="px-6 relative">
+              <AnimatePresence>
+                {isCutting && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[2500]"
+                  >
+                    <div className="bg-gray-900/95 dark:bg-white text-white dark:text-gray-900 px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 whitespace-nowrap border border-white/10 backdrop-blur-md">
+                      <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md shadow-green-500/20">
+                        <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                      </div>
+                      <span className="text-sm font-bold tracking-wide">{t('ticketTaken')}</span>
                     </div>
-                    <div>
-                      <p className="text-xs font-black text-red-400 uppercase tracking-widest mb-0.5">{t('saturation')}</p>
-                      <p className="text-sm font-bold text-red-900 dark:text-red-100">{t('full') || 'Complet'}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          )}
-
-          {!hasReservationOnSelectedDay && !dailySchedule.isFull && (
-            <div className="mb-4">
-              <motion.button 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                onClick={handleTakeTicket}
-                disabled={isCutting || selectedSlot === null}
-                className={cn(
-                  "w-full py-5 rounded-[2rem] font-display font-bold text-lg shadow-2xl transition-all active:scale-[0.98] relative overflow-hidden group",
-                  isCutting 
-                    ? "bg-green-500 text-white shadow-green-500/30" 
-                    : "bg-blue-600 text-white shadow-blue-500/30 hover:bg-blue-700",
-                  (isCutting || selectedSlot === null) && "opacity-50 cursor-not-allowed bg-blue-400 dark:bg-blue-800"
+                  </motion.div>
                 )}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                <span className="relative flex items-center justify-center gap-3">
-                  <AnimatePresence mode="wait">
-                    {isCutting ? (
-                      <motion.div 
-                        key="success"
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="flex items-center gap-2"
-                      >
-                        <div className="w-6 h-6 border-2 border-white rounded-full flex items-center justify-center">
-                          <motion.div
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
-                            className="w-3 h-3 border-r-2 border-b-2 border-white rotate-45 -mt-0.5"
-                          />
+              </AnimatePresence>
+
+              {isBookingSector && (hasReservationOnSelectedDay || dailySchedule.isFull) && (
+                <div className="mb-6">
+                  {hasReservationOnSelectedDay && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-100 dark:border-red-800/50 rounded-[2rem] flex flex-col items-center text-center gap-3"
+                    >
+                      <div className="p-3 bg-red-100 dark:bg-red-900/40 rounded-2xl text-red-600 dark:text-red-400">
+                        <X className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-bold text-red-700 dark:text-red-400">
+                        {t('ticketLimitReached') || 'Vous avez déjà une réservation pour ce jour.'}
+                      </p>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
+              {/* Take Ticket Button (Non-Booking) */}
+              {!isBookingSector && (
+                 <div className="mb-4">
+                    {isFriday(new Date()) ? (
+                      <div className="p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-100 dark:border-red-800/50 rounded-[2rem] flex flex-col items-center text-center gap-3 mt-4">
+                        <div className="p-3 bg-red-100 dark:bg-red-900/40 rounded-2xl text-red-600 dark:text-red-400">
+                          <X className="w-6 h-6" />
                         </div>
-                        {t('success')}
-                      </motion.div>
+                        <p className="text-sm font-bold text-red-700 dark:text-red-400 uppercase tracking-widest">
+                          {t('closed' as any) || 'Fermé'}
+                        </p>
+                      </div>
                     ) : (
-                      <motion.div 
-                        key="idle"
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="flex items-center gap-3"
-                      >
-                        <TicketIcon className="w-5 h-5" />
-                        {selectedSlot !== null ? (
-                          <span>{(t('takeTicket') || 'Prendre le ticket')} #{selectedSlot}</span>
-                        ) : (
-                          <span>{(t('takeTicket') || 'Prendre le ticket')}</span>
-                        )}
-                      </motion.div>
+                      <>
+                        <motion.button 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          onClick={() => {
+                            setIsCutting(true);
+                            setTimeout(() => {
+                              const todayStr = formatDateToYYYYMMDD(new Date());
+                              (institution as any)._targetDate = todayStr;
+                              (institution as any)._queuePosition = institution.lastGivenTicket + 1;
+                              onTakeTicket(institution);
+                            }, 1200);
+                          }}
+                          disabled={isCutting}
+                          className={cn(
+                            "w-full py-6 rounded-[2rem] font-display font-black text-xl shadow-2xl transition-all active:scale-[0.98] relative overflow-hidden group",
+                            isCutting 
+                              ? "bg-green-500 text-white" 
+                              : "bg-blue-600 text-white shadow-blue-500/40 hover:bg-blue-700"
+                          )}
+                        >
+                          <span className="relative z-10 flex items-center justify-center gap-3">
+                            {isCutting ? (
+                              <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <>
+                                <TicketIcon className="w-6 h-6" />
+                                <span>{t('takeTicket' as any) || "Prendre un ticket"}</span>
+                              </>
+                            )}
+                          </span>
+                        </motion.button>
+                        <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest mt-4">{t('liveQueueSystemDesc' as any) || "Système de file d'attente en direct"}</p>
+                      </>
                     )}
-                  </AnimatePresence>
-                </span>
-              </motion.button>
-              {selectedSlot === null && (
-                <p className="text-center text-xs font-bold text-gray-500 mt-3">{t('pleaseSelectSlot') || 'Veuillez sélectionner une place disponible ci-dessus'}</p>
+                 </div>
               )}
             </div>
-          )}
-        </div>
-      </motion.div>
-    </>
-  )}
-</AnimatePresence>
+        </motion.div>
+      </>
+    )}
+  </AnimatePresence>
   );
 };
